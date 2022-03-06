@@ -1,22 +1,33 @@
-get_ipython().run_line_magic('matplotlib', 'notebook')
 import sympy as sp
-from sympy import I, sin, cos, log, pi, tan, sqrt, exp
 import scipy.linalg as la
 import numpy as np
-from functools import partial
 import matplotlib.pyplot as plt
+from sympy import I, sin, cos, log, pi, tan, sqrt, exp
+from functools import partial
 from sympy.plotting.plot import MatplotlibBackend, Plot
 from sympy.plotting import plot3d
+get_ipython().run_line_magic('matplotlib', 'notebook')
+
 
 def get_sympy_subplots(plot: Plot):
+    """
+    Allows you to combine plot3d graphics from sympy and plot from matplotlib
+    return fig and ax for graph
+    """
     backend = MatplotlibBackend(plot)
     backend.process_series()
     backend.fig.tight_layout()
     return backend.fig, backend.ax[0]
 
+
 def get_data():
+    """
+    Initial function for data entry
+    return data with variables and math function
+    """
     data = dict()
-    data['X'] = sp.symbols(input('Введите названия переменных (x y): ').split())
+    text = 'Введите названия переменных (x y): '
+    data['X'] = sp.symbols(input(text).split())
     assert len(data['X']) == 2, 'переменные заданы неверно'
 
     f = input('Введите функцию (y*x+2): ')
@@ -27,14 +38,17 @@ def get_data():
         str_x = 'Введите ограничения для x [-10, 10]: '
         str_y = 'Введите ограничения для y [-10, 10]: '
         try:
-            data['x_min'], data['x_max'] = eval(input(str_x)) 
-            data['y_min'], data['y_max'] = eval(input(str_y)) 
+            data['x_min'], data['x_max'] = eval(input(str_x))
+            data['y_min'], data['y_max'] = eval(input(str_y))
         except ValueError:
             raise Exception('ограничения заданы неверно')
-        assert data['x_min'] < data['x_max'], 'границы для ограничения x перепутаны'
-        assert data['y_min'] < data['y_max'], 'границы для ограничения y перепутаны'
+        range_x = 'границы для ограничения x перепутаны'
+        range_y = 'границы для ограничения y перепутаны'
+        assert data['x_min'] < data['x_max'], range_x
+        assert data['y_min'] < data['y_max'], range_y
 
     return data
+
 
 def get_crit(func: sp.Matrix, X: list):
     """
@@ -44,6 +58,7 @@ def get_crit(func: sp.Matrix, X: list):
     """
     gradf = sp.simplify(func.jacobian(X))
     return sp.solve(gradf, X, dict=True)
+
 
 def filter_point(point: list, x_min, x_max, y_min, y_max):
     """
@@ -56,37 +71,40 @@ def filter_point(point: list, x_min, x_max, y_min, y_max):
             return True
     return False
 
+
 def type_point(func, X, x0):
     """
     func: sympy.Matrix(['x + y']),
     X: [sympy.Symbol('x'), sympy.Symbol('y')],
-    x0: (1, 2) – tuple of int or float numbers, critical point 
+    x0: (1, 2) – tuple of int or float numbers, critical point
     return type of critical points
     """
     hessianf = sp.simplify(sp.hessian(func, X))
     H = np.array(hessianf.subs(dict(zip(X, x0)))).astype('float')
     l, v = la.eig(H)
     if(np.all(np.greater(l, np.zeros(2)))):
-       return 'minimum'
+        return 'minimum'
     elif(np.all(np.less(l, np.zeros(2)))):
-       return 'maximum'
+        return 'maximum'
     else:
-       return 'saddle'
+        return 'saddle'
+
 
 def get_extremums():
     """
-    returns a tuple from the source data and the results of the function. 
-    data: dict - dictionary of source data, stores the name of variables, 
-    function, constraints. 
-    points: list – a list of tuples, each element stores a point, 
+    returns a tuple from the source data and the results of the function.
+    data: dict - dictionary of source data, stores the name of variables,
+    function, constraints.
+    points: list – a list of tuples, each element stores a point,
     the value of the function at the point and the type of extremum.
     """
     data = get_data()
     crit = get_crit(data['func'], data['X'])
     if data['limit']:
         print('Если в списке критических точек есть комплексные числа, мы их не выводим.')
-        f = partial(filter_point, x_min=data['x_min'], x_max=data['x_max'], 
-                                  y_min=data['y_min'], y_max=data['y_max'])
+        f = partial(filter_point,
+                    x_min=data['x_min'], x_max=data['x_max'],
+                    y_min=data['y_min'], y_max=data['y_max'])
         crit = list(filter(f, crit))
     if len(crit) > 40:
         n = int(input('Точек больше 40, сколько вывести? '))
@@ -101,13 +119,17 @@ def get_extremums():
                 points.append(((x1, x2), z, type_x))
             except (ValueError, TypeError):
                 points.append((x, 'crit point'))
-                continue 
+                continue
         else:
             points.append((x, 'crit point'))
-        
     return data, points
 
-def show_chart(data, points):
+
+def show_chart(data: dict, points:list):
+    """
+    data: dictionary with variables and function
+    points: list with points
+    """
     p = plot3d(data['func'][0], show=False)
     fig, axe = get_sympy_subplots(p)
     x1 = [x[0][0] for x in points]
@@ -115,8 +137,11 @@ def show_chart(data, points):
     axe.plot(x1, x2, "o", color='red', zorder=3)
     fig.show()
 
+
 def main():
+    """
+    The main function that solves the equation and outputs the graph
+    """
     data, points = get_extremums()
     print(*points, sep='\n')
     show_chart(data, points)
-
