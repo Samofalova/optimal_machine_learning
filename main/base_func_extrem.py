@@ -147,6 +147,9 @@ def main():
     """
     The main function that solves the equation and outputs the graph
     """
-    data, points = get_extremums()
+    try:
+        data, points = get_extremums()
+    except NotImplementedError: 
+        return 'Для данного выражения нет аналитического решения'
     print(*points, sep='\n')
     show_chart(data, points)
