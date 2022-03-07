@@ -102,9 +102,8 @@ def get_extremums():
     crit = get_crit(data['func'], data['X'])
     if data['limit']:
         print('Если в списке критических точек есть комплексные числа, мы их не выводим.')
-        f = partial(filter_point,
-                    x_min=data['x_min'], x_max=data['x_max'],
-                    y_min=data['y_min'], y_max=data['y_max'])
+        f = partial(filter_point, x_min=data['x_min'], x_max=data['x_max'], 
+                                  y_min=data['y_min'], y_max=data['y_max'])
         crit = list(filter(f, crit))
     if len(crit) > 40:
         n = int(input('Точек больше 40, сколько вывести? '))
@@ -119,9 +118,10 @@ def get_extremums():
                 points.append(((x1, x2), z, type_x))
             except (ValueError, TypeError):
                 points.append((x, 'crit point'))
-                continue
+                continue 
         else:
             points.append((x, 'crit point'))
+        
     return data, points
 
 
@@ -132,9 +132,14 @@ def show_chart(data: dict, points:list):
     """
     p = plot3d(data['func'][0], show=False)
     fig, axe = get_sympy_subplots(p)
-    x1 = [x[0][0] for x in points]
-    x2 = [x[0][1] for x in points]
-    axe.plot(x1, x2, "o", color='red', zorder=3)
+    if points:
+        x1, x2, x3 = [], [], []
+        for point in points:
+            if point[-1] != 'crit point':
+                x1.append(point[0][0])
+                x2.append(point[0][1])
+                x3.append(data['func'].subs(dict(zip(data['X'], point[0]))))
+        axe.scatter(x1, x2, x3, "o", color='red', zorder=3)
     fig.show()
 
 
