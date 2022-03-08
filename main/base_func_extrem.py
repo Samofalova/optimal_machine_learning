@@ -138,7 +138,7 @@ def show_chart(data: dict, points:list):
             if point[-1] != 'crit point':
                 x1.append(point[0][0])
                 x2.append(point[0][1])
-                x3.append(data['func'].subs(dict(zip(data['X'], point[0]))))
+                x3.append(float(point[1]))
         axe.scatter(x1, x2, x3, "o", color='red', zorder=3)
     fig.show()
 
