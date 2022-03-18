@@ -1,8 +1,9 @@
 def golden_ratio(func, search_area, extreme_type='min', accuracy=10**(-5),
                  maxiter=500, interim_results=False, dataset_rec=False):
     """
-    Returns the minimum or maximum of a function of one variable on the segment
-    [a, b] using the golden ratio method.
+    Returns dict with the minimum or maximum of a function of one variable on 
+    the segment [a, b] using the golden ratio method, value of function, report
+    and intermediate results in pandas.DataFrame (optional).
     Given a function of one variable and a possible bracketing interval,
     return the minimum or maximum of the function isolated to a fractional
     precision of accuracy.
