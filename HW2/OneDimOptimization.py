@@ -10,7 +10,7 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10**(-5),
     Parameters
     ----------
     func : str
-        Objective function to minimize.
+        Objective function to minimize or maximize.
     search_area : tuple or list
         [a, b], where (a<b) – the interval within which the maximum
         and minimum are searched.
