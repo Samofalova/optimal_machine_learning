@@ -25,7 +25,7 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10**(-5),
     --------
     >>> from HW2.OneDimOptimization import golden_ratio
     >>> minimum = golden_ratio(func='x**2', search_area=(1, 2))
-    >>> minimum
+    >>> print(minimum['point'])
     1.0000048224378428
     """
     str_error = 'Длина отрезка должна быть больше заданной точности'
