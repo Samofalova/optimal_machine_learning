@@ -42,9 +42,9 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10**(-5),
         return None
     proportion = 1.6180339887
     a, b = search_area
-    iter = 0
-    while abs(b - a) >= accuracy and iter != maxiter:
-        iter += 1
+    iterat = 0
+    while abs(b - a) >= accuracy and iterat != maxiter:
+        iterat += 1
         x1 = b - (b-a) / proportion
         x2 = a + (b-a) / proportion
         f1, f2 = float(func.subs({x: x1})), float(func.subs({x: x2}))
@@ -64,7 +64,7 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10**(-5),
                 b = x2
 
         if interim_results:
-            print(f'''{iter}:
+            print(f'''{iterat}:
             a = {a}, b = {b},
             x1 = {x1}, x2 = {x2},
             f1 = {f1}, f2 = {f2}''')
