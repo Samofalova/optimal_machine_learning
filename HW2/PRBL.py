@@ -19,7 +19,7 @@ def get_data():
 # основная функция решения
 def parabola_method(func: str,
                     limits: list,
-                    accuracy: float = 10 ** (-25),
+                    accuracy: float = 10 ** (-5),
                     max_iterations: int = 500,
                     intermediate_results: bool = False,
                     intermediate_writing: bool = False):
@@ -46,6 +46,9 @@ def parabola_method(func: str,
     F = eval(func)
 
     left_hand, right_hand = limits
+
+    left_hand = float(left_hand)
+    right_hand = float(right_hand)
 
     if left_hand > right_hand:
         left_hand, right_hand = right_hand, left_hand
@@ -105,7 +108,4 @@ def parabola_method(func: str,
 
     f_res = F.subs(x, x_res)
 
-    return f_res, x_res
-
-
-
+    return f_res, x_res, iteration_num
