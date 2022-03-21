@@ -1,3 +1,12 @@
+import pandas as pd
+import numpy as np
+from sympy import *
+from copy import deepcopy
+from scipy.optimize import brentq
+from sympy.plotting import plot
+from sympy.plotting.plot import MatplotlibBackend, Plot
+
+
 def golden_ratio(func, search_area, extreme_type='min', accuracy=10**(-5),
                  maxiter=500, interim_results=False, dataset_rec=False):
     """
@@ -82,13 +91,22 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10**(-5),
     return res
   
   
+def get_sympy_subplots(plot: Plot):
+    backend = MatplotlibBackend(plot)
 
+    backend.process_series()
+    backend.fig.tight_layout()
+    return backend.fig, backend.ax[0]
+  
+ 
 def parabola_method(func: str,
                     limits: list,
+                    type_extr = 'min',
                     accuracy: float=10**(-5),
                     max_iterations: int=500,
                     intermediate_results: bool=False,
-                    intermediate_writing: bool=False):
+                    intermediate_writing: bool=False,
+                    figure=True):
     """
     Search for the extremum of a function of one variable using the parabola method.
     
@@ -107,77 +125,208 @@ def parabola_method(func: str,
         - Function value at the extremum point;
         - Algorithm report;
     """
+    try:
+        X = symbols('X')
+        F = eval(func)
+
+        if type_extr == 'max':
+            F = F * (-1)
+
+        left_hand, right_hand = eval(limits)
+
+        left_hand = float(left_hand)
+        right_hand = float(right_hand)
+
+        if left_hand > right_hand:
+            left_hand, right_hand = right_hand, left_hand
+
+        results = pd.DataFrame(columns=['x1', 'x2', 'x3', 'f1', 'f2', 'f3'])
+        iteration_num = 0
+        d = 100
+        while iteration_num < max_iterations:
+            # need to satisfy inequality x1<x2<x3, f(x1) >= f(x2) <= f(x3) 
+
+            if not(d > accuracy) and d != 0.0:
+                if intermediate_writing:
+                    if intermediate_results:
+                        print(f"iteration_num = {iteration_num}; x1 = {x1}; x2 = {x2}; x3 = {x3}; f1 = {f1}; f2 = {f2}; f3 = {f3}")
+                    if intermediate_writing:
+                        results = results.append({'x1': x1, 'x2': x2, 'x3': x3, 'f1': f1, 'f2': f2, 'f3': f3}, ignore_index=True)
+                print(results)
+                if figure:
+                    f_res = F.subs(x, x_res)
+                    p = plot(func, show=False)
+                    fig, axe = get_sympy_subplots(p)
+                    axe.plot(x_res, f_res, "o", c='red')
+                    fig.show()
+                return x_res, f_res, 'Значение с заданной точностью', d
+
+            # first step
+            if iteration_num == 0:
+                x1 = left_hand
+                x3 = right_hand
+                x2 = (x1+x3)/2
+
+
+            f1 = F.subs(X, x1)
+            f2 = F.subs(X, x2)
+            f3 = F.subs(X, x3)
+
+
+            # second step
+            # first  formula - a0 = f1, a1 = (f2-f1)/(x2-x1), a2 = 1/(x3-x2) * ((f3-f1)/(x3-x1) - (f2-f1)/(x2-x1))
+            # second formula - x_ = 1/2*(x1 + x2 - a1/a2)
+            a0 = float(deepcopy(f1))
+            a1 = float((f2-f1)/(x2-x1))
+            a2 = float(1/(x3-x2) * ((f3-f1)/(x3-x1) - (f2-f1)/(x2-x1)))
+
+
+            if iteration_num > 0:
+                x_old = deepcopy(x_)
+
+            x_ = 1/2*(x1 + x2 - a1/a2)
+
+
+            # check num of step - go to step 4 if its first step
+            if iteration_num > 0:
+                d = abs(x_old - x_)
+
+                if d <= accuracy:
+                    x_res = deepcopy(x_)
+
+
+            # step 4
+            f_x_ = F.subs(X, x_)
+
+            # step 5
+            # suppose x1 = x_ = ..., f1 = f_x_ = ...
+            if x1 < x_ < x2 < x3 and f_x_ >= f2: # x* in [x_, x3]
+                x1 = deepcopy(x_)
+                f1 = deepcopy(f_x_)
+            elif x1 < x2 < x_ < x3 and f2 >= f_x_: # x* in [x2, x3]
+                x1 = deepcopy(x2)
+                f1 = deepcopy(f2)
+                x2 = deepcopy(x_)
+                f2 = deepcopy(f_x_)
+
+            iteration_num += 1
+            if intermediate_results:
+                print(f"iteration_num = {iteration_num}; x1 = {x1}; x2 = {x2}; x3 = {x3}; f1 = {f1}; f2 = {f2}; f3 = {f3}")
+            if intermediate_writing:
+                results = results.append({'x1': x1, 'x2': x2, 'x3': x3, 'f1': f1, 'f2': f2, 'f3': f3}, ignore_index=True)
+
+        f_res = F.subs(X, x_res)
+
+        if intermediate_writing:
+            print(results)
+
+        if figure:
+            p = plot(func, show=False)
+            fig, axe = get_sympy_subplots(p)
+            axe.plot(x_res, f_res, "o", c='red')
+            fig.show()
+
+        return x_res, f_res, 'Достигнуто максимальное количество итераций'
+    except:
+        return 'Выполнено с ошибкой'
+  
+  def BrantMethod(func: str,
+                limits: list,
+                accuracy: float=10**(-500),
+                max_iterations: int=500,
+                intermediate_results: bool=False,
+                intermediate_writing: bool=False,
+                figure=True):
     
-    x = symbols('x')
+    X = symbols('x')
     F = eval(func)
     
     
-    left_hand, right_hand = limits
+    a, b = eval(limits)
+    r = (3-5**(1/2))/2
     
-    left_hand = float(left_hand)
-    right_hand = float(right_hand)
     
-    if left_hand > right_hand:
-        left_hand, right_hand = right_hand, left_hand
-        
-    iteration_num = 0
-    d = 100
-    while (d > accuracy) or (iteration_num < max_iterations):
-        # need to satisfy inequality x1<x2<x3, f(x1) >= f(x2) <= f(x3) 
+    x = a + r*(b - a)
+    w = a + r*(b - a)
+    v = a + r*(b - a)
+    
 
-        # first step
-        if iteration_num == 0:
-            x1 = left_hand
-            x3 = right_hand
-            x2 = (x1+x3)/2
-        
-
-        f1 = F.subs(x, x1)
-        f2 = F.subs(x, x2)
-        f3 = F.subs(x, x3)
-        
-        #return f1
-
-        # second step
-        
-        # first  formula - a0 = f1, a1 = (f2-f1)/(x2-x1), a2 = 1/(x3-x2) * ((f3-f1)/(x3-x1) - (f2-f1)/(x2-x1))
-        # second formula - x_ = 1/2*(x1 + x2 - a1/a2)
-        a0 = float(deepcopy(f1))
-        a1 = float((f2-f1)/(x2-x1))
-        a2 = float(1/(x3-x2) * ((f3-f1)/(x3-x1) - (f2-f1)/(x2-x1)))
-
-        
-        if iteration_num > 0:
-            x_old = deepcopy(x_)
+    
+    f_x = F.subs(X, x)
+    f_w = F.subs(X, w)
+    f_v = F.subs(X, v)
+    
+    
+    d_cur = b - a
+    d_prv = b - a
+    
+    results = pd.DataFrame(columns=['x', 'w', 'v', 'f_x', 'f_w', 'f_v'])
+    step_num = 0
+    while step_num <= max_iterations:
+        if max(abs(x - a), abs(b - x)) < accuracy:
             
-        x_ = 1/2*(x1 + x2 - a1/a2)
+            if intermediate_results:
+                print(f"iteration_num = {iteration_num}; x = {x}; w = {w}; v = {v}; f_x = {f_x}; f_w = {f_w}; f_v = {f_v}")
+            if intermediate_writing:
+                results = results.append({'x': x, 'w': w, 'v': v, 'f_x': f_x, 'f_w': f_w, 'f_v': f_v}, ignore_index=True)
+            if intermediate_writing:
+                print(results)
+
+            if figure:
+                p = plot(func, show=False)
+                fig, axe = get_sympy_subplots(p)
+                axe.plot(x, F.subs(X, x), "o", c='red')
+                fig.show()
+            
+            return x, F.subs(X, x), step_num
+        g = d_prv /2
+        d_prv = deepcopy(d_cur)
+#         res = solve([f_x - a0*x**2 - a1*x - a2, f_w - a0*w**2 - a1*w -a2, f_v - a0*v**2 - a1*v - a2],
+#                          [a0, a1, a2], dict=True)[0]
+#         u = -res[a1]/(2*res[a0])
+        u = parabola_method(func, limits, figure=False)[1]
+        if u is None or not(a <= u <= b) or abs(u-x) > g:
+            if x < (a+b)/2:
+                u = x + r*(b-x)
+                d_prv = b - x
+            else:
+                u = x - r*(x - a)
+                d_prv = x - a
+        d_cur = abs(u - x)
+        if F.subs(X, u) > f_x:
+            if u < x:
+                a = deepcopy(u)
+            else:
+                b = deepcopy(u)
+            if F.subs(X, u) <= f_w or w == x:
+                v = deepcopy(w)
+                w = deepcopy(u)
+            else:
+                if F.subs(X, u) <= f_v or v == x or v == w:
+                    v = deepcopy(u)
+        else:
+            if u < x:
+                b = deepcopy(x)
+            else:
+                a = deepcopy(x)
+            v = deepcopy(w)
+            w = deepcopy(x)
+            x = deepcopy(u)
+        step_num += 1
         
-        # check num of step - go to step 4 if its first step
-        if iteration_num > 0:
-            d = abs(x_old - x_)
+        if intermediate_results:
+            print(f"iteration_num = {iteration_num}; x = {x}; w = {w}; v = {v}; f_x = {f_x}; f_w = {f_w}; f_v = {f_v}")
+        if intermediate_writing:
+            results = results.append({'x': x, 'w': w, 'v': v, 'f_x': f_x, 'f_w': f_w, 'f_v': f_v}, ignore_index=True)
+    
+    if intermediate_writing:
+        print(results)
         
-            if d <= accuracy:
-                x_res = deepcopy(x_)
-
-
-        # step 4
-        f_x_ = F.subs(x, x_)
-
-        # step 5
-        # suppose x1 = x_ = ..., f1 = f_x_ = ...
-        if x1 < x_ < x2 < x3 and f_x_ >= f2: # x* in [x_, x3]
-            x1 = deepcopy(x_)
-            f1 = deepcopy(f_x_)
-        elif x1 < x2 < x_ < x3 and f2 >= f_x_: # x* in [x2, x3]
-            x1 = deepcopy(x2)
-            f1 = deepcopy(f2)
-            x2 = deepcopy(x_)
-            f2 = deepcopy(f_x_)
-
-        iteration_num += 1
-
-    f_res = F.subs(x, x_res)
-
-    return f_res, x_res, iteration_num
-  
+    if figure:
+        p = plot(func, show=False)
+        fig, axe = get_sympy_subplots(p)
+        axe.plot(x, F.subs(X, x), "o", c='red')
+        fig.show()
+    
+    return x, F.subs(X, x), step_num
   
