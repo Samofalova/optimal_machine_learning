@@ -101,6 +101,18 @@ def get_sympy_subplots(plot: Plot):
     backend.fig.tight_layout()
     return backend.fig, backend.ax[0]
   
+
+def center_point(F, x1, x2, x3):
+    if (x1, F(x1)) == (x2, F(x2)) or (x2, F(x2)) == (x3, F(x3)) or (x1, F(x1)) == (x3, F(x3)):
+        return None
+    f_1, f_2, f_3 = F(x1), F(x2), F(x3)
+    
+    a1 = (f_2 - f_1) / (x2 - x1)
+    a2 = 1/(x3 - x2)*((f_3 - f_1)/(x3 - x1) - (f_2 - f_1)/(x2 - x1))
+    
+    point = 0.5*(x1 + x2 - a1/a2)
+    return point
+  
  
 def parabola_method(func: str,
                     limits: list,
@@ -232,221 +244,76 @@ def parabola_method(func: str,
         return x_res, f_res, 'Достигнуто максимальное количество итераций'
     except:
         return 'Выполнено с ошибкой'
-  
+
+
 def BrantMethod(func: str,
-                limits: list,
-                accuracy: float=10**(-500),
-                max_iterations: int=500,
-                intermediate_results: bool=False,
-                intermediate_writing: bool=False,
-                figure=True):
+                    limits: list,
+                    accuracy: float=10**(-5),
+                    max_iterations: int=500,
+                    intermediate_results: bool=False,
+                    intermediate_writing: bool=False):
     
-    X = symbols('x')
-    F = eval(func)
+    r = (3 - 5**(1/2)) / 2
     
-    
-    a, b = eval(limits)
-    r = (3-5**(1/2))/2
-    
+    a, b = limits
     
     x = a + r*(b - a)
     w = a + r*(b - a)
     v = a + r*(b - a)
     
-
+    d_cur = a - b
+    d_prv = a - b
     
-    f_x = F.subs(X, x)
-    f_w = F.subs(X, w)
-    f_v = F.subs(X, v)
-    
-    
-    d_cur = b - a
-    d_prv = b - a
-    
-    results = pd.DataFrame(columns=['x', 'w', 'v', 'f_x', 'f_w', 'f_v'])
+    results = pd.DataFrame(columns=['step_num', 'a', 'b', 'x', 'w', 'v', 'u'])
     step_num = 0
-    while step_num <= max_iterations:
-        if max(abs(x - a), abs(b - x)) < accuracy:
-            
+    while max(x - a, b - x) > accuracy:
+        
+        if step_num >= max_iterations:
             if intermediate_results:
-                print(f"iteration_num = {iteration_num}; x = {x}; w = {w}; v = {v}; f_x = {f_x}; f_w = {f_w}; f_v = {f_v}")
+                print(f'step_num: {step_num}, a: {a}, b: {b}, x: {x}, w: {w}, v: {w}, u: {u}')
             if intermediate_writing:
-                results = results.append({'x': x, 'w': w, 'v': v, 'f_x': f_x, 'f_w': f_w, 'f_v': f_v}, ignore_index=True)
-            if intermediate_writing:
-                print(results)
-
-            if figure:
-                p = plot(func, show=False)
-                fig, axe = get_sympy_subplots(p)
-                axe.plot(x, F.subs(X, x), "o", c='red')
-                fig.show()
+                print(result)
+                
+            return x, func(x), 'Достигнуто макисмальное количество итераций'
             
-            return x, F.subs(X, x), step_num
-        g = d_prv /2
-        d_prv = deepcopy(d_cur)
-#         res = solve([f_x - a0*x**2 - a1*x - a2, f_w - a0*w**2 - a1*w -a2, f_v - a0*v**2 - a1*v - a2],
-#                          [a0, a1, a2], dict=True)[0]
-#         u = -res[a1]/(2*res[a0])
-        u = parabola_method(func, limits, figure=False)[1]
-        if u is None or not(a <= u <= b) or abs(u-x) > g:
-            if x < (a+b)/2:
-                u = x + r*(b-x)
+        g = d_prv / 2
+        d_prv = d_cur
+        u = center_point(F, x, w, v)
+        if not u or (u < a or u > b) or abs(u - x) > g:
+            if x < (a + b) / 2:
+                u = x + r*(b - x)
                 d_prv = b - x
             else:
                 u = x - r*(x - a)
-                d_prv = x - a
+                d_prv = (x - a)
         d_cur = abs(u - x)
-        if F.subs(X, u) > f_x:
+        
+        if func(u) > func(x):
             if u < x:
-                a = deepcopy(u)
+                a = u
             else:
-                b = deepcopy(u)
-            if F.subs(X, u) <= f_w or w == x:
-                v = deepcopy(w)
-                w = deepcopy(u)
+                b = u
+            if func(u) <= func(w) or w == x:
+                v = w
+                w = u
             else:
-                if F.subs(X, u) <= f_v or v == x or v == w:
-                    v = deepcopy(u)
+                if func(u) <= func(v) or v == x or v == w:
+                    v = u
         else:
             if u < x:
-                b = deepcopy(x)
+                b = x
             else:
-                a = deepcopy(x)
-            v = deepcopy(w)
-            w = deepcopy(x)
-            x = deepcopy(u)
+                a = x
+            v = w
+            w = x
+            x = u
         step_num += 1
-        
         if intermediate_results:
-            print(f"iteration_num = {iteration_num}; x = {x}; w = {w}; v = {v}; f_x = {f_x}; f_w = {f_w}; f_v = {f_v}")
+            print(f'step_num: {step_num}, a: {a}, b: {b}, x: {x}, w: {w}, v: {w}, u: {u}')
         if intermediate_writing:
-            results = results.append({'x': x, 'w': w, 'v': v, 'f_x': f_x, 'f_w': f_w, 'f_v': f_v}, ignore_index=True)
+            results = results.append({'step_num': step_num, 'a': a, 'b': b, 
+                                      'x': x, 'w': w, 'v': v, 'u': u}, ignore_index=True)
+            
     
-    if intermediate_writing:
-        print(results)
-        
-    if figure:
-        p = plot(func, show=False)
-        fig, axe = get_sympy_subplots(p)
-        axe.plot(x, F.subs(X, x), "o", c='red')
-        fig.show()
     
-    return x, F.subs(X, x), step_num
-  
-def bfgs(func, diff_func, x0, extreme_type='min', accuracy=10**-5, maxarg=100,
-         firstW=10**-4, secondW=0.1, maxiter=500, interim_results=False,
-         dataset_rec=False):
-    """
-    Minimize or maximize a function using the BFGS algorithm.
-    Parameters
-    ----------
-    func : callable ``f(x)``
-        Objective function to be minimized or maximized.
-    diff_func : callable ``f'(x)``
-        Objective function gradient.
-    x0 : float, int
-        Starting point.
-    extreme_type : str, optional
-        Maximizing or minimizing.
-    accuracy : float, optional
-        Gradient norm (abs) in x0 must be less than `accuracy` before successful
-        termination.
-    maxarg : float, int, optional
-        Maximum value of the argument function.
-    firstW : int or ndarray, optional
-        Parameter for Armijo condition rule.
-    secondW : callable, optional
-        Parameter for curvature condition rule.
-    maxiter : int, optional
-        Maximum number of iterations to perform.
-    interim_results : bool, optional
-        If True, print intermediate results.
-    dataset_rec : bool, optional
-        If True, an entry in pandas.DataFrame intermediate results.
-    Examples
-    --------
-    >>> from HW2.OneDimOptimization import bfgs
-    >>> def f(x):
-    ...     return -x/(x**2+2)
-    ... def f1(x):
-    ...     return 2*x**2/(x**2+2)**2 - 1/(x**2+2)
-    >>> bfgs(f, f1, 1, maxiter=5000, extreme_type='max')
-    {'point': -1.4142509823545781,
-     'value_func': 0.35355339046951084,
-     'report': 1,
-     'interim_results_dataset': None}
-    >>> bfgs(f, f1, 1, maxiter=5000)
-    {'point': 1.4142144676627526,
-     'value_func': -0.35355339059320134,
-     'report': 1,
-     'interim_results_dataset': None}
-    """
-    if extreme_type == 'max':
-        f = lambda x: -func(x)
-        diff_f = lambda x: -diff_func(x)
-    res = {'point': None, 'value_func': None, 'report': None,
-           'interim_results_dataset': None}
-    dataset = []
-    iterat = 0
-    if extreme_type == 'max':
-        g = diff_f(x0)
-    else:
-        g = diff_func(x0)
-    Hk = 1  # is initial approximation
-    xk = x0
-    while abs(g) > accuracy and iterat < maxiter and xk < maxarg:
-        if dataset_rec:
-            dataset.append([xk, func(xk), g, Hk])
-        if interim_results:
-            print(f'''{iterat}:
-            xk = {xk}    f(xk) = {func(xk)}    g = {g}    Hk = {Hk}''')
-        pk = -Hk * g
-        try:
-            if extreme_type == 'max':
-                line_search = optimize.line_search(f, diff_f, np.array(xk),
-                                                   np.array(pk), c1=firstW,
-                                                   c2=secondW)
-            else:
-                line_search = optimize.line_search(func, diff_func, np.array(xk),
-                                                   np.array(pk), c1=firstW,
-                                                   c2=secondW)
-            if line_search[0]:
-                alpha_k = line_search[0]
-            else:
-                print('не смогли найти лучшее приближение')
-                res['report'] = 4
-                break
-        except optimize.linesearch.LineSearchWarning:
-            print('не смогли найти лучшее приближение')
-            res['report'] = 4
-            break
-        xkp = xk + alpha_k * pk
-        sk = xkp - xk
-        xk = xkp
-
-        if extreme_type == 'max':
-            g2 = diff_f(xk)
-        else:
-            g2 = diff_func(xkp)
-        yk = g2 - g
-        g = g2
-
-        iterat += 1
-        rho = 1.0 / (yk * sk)
-        A1 = 1 - rho * sk * yk
-        A2 = 1 - rho * yk * sk
-        Hk = A1 * Hk * A2 + (rho * sk**2)
-
-
-    res['point'] = xk
-    res['value_func'] = func(xk)
-    if dataset_rec:
-        res['interim_results_dataset'] = pd.DataFrame(dataset,
-                                                      columns=['xk', 'f', 'g', 'Hk'])
-    if abs(g) <= accuracy and res['report'] != 4:
-        res['report'] = 1
-    elif iterat == maxiter and res['report'] != 4:
-        res['report'] = 2
-    elif xk >= maxarg and res['report'] != 4:
-        res['report'] = 3
-    return res
+    return x, func(x), 'Достигнута задання точность'
