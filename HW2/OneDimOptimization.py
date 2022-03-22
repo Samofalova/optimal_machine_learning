@@ -318,3 +318,119 @@ def BrantMethod(func: str,
                 print(result)
     
     return x, func(x), 'Достигнута заданная точность'
+def bfgs(func, diff_func, x0, extreme_type='min', accuracy=10**-5, maxarg=100,
+         firstW=10**-4, secondW=0.1, maxiter=500, interim_results=False,
+         dataset_rec=False):
+    """
+    Minimize or maximize a function using the BFGS algorithm.
+    Parameters
+    ----------
+    func : callable ``f(x)``
+        Objective function to be minimized or maximized.
+    diff_func : callable ``f'(x)``
+        Objective function gradient.
+    x0 : float, int
+        Starting point.
+    extreme_type : str, optional
+        Maximizing or minimizing.
+    accuracy : float, optional
+        Gradient norm (abs) in x0 must be less than `accuracy` before successful
+        termination.
+    maxarg : float, int, optional
+        Maximum value of the argument function.
+    firstW : int or ndarray, optional
+        Parameter for Armijo condition rule.
+    secondW : callable, optional
+        Parameter for curvature condition rule.
+    maxiter : int, optional
+        Maximum number of iterations to perform.
+    interim_results : bool, optional
+        If True, print intermediate results.
+    dataset_rec : bool, optional
+        If True, an entry in pandas.DataFrame intermediate results.
+    Examples
+    --------
+    >>> from HW2.OneDimOptimization import bfgs
+    >>> def f(x):
+    ...     return -x/(x**2+2)
+    ... def f1(x):
+    ...     return 2*x**2/(x**2+2)**2 - 1/(x**2+2)
+    >>> bfgs(f, f1, 1, maxiter=5000, extreme_type='max')
+    {'point': -1.4142509823545781,
+     'value_func': 0.35355339046951084,
+     'report': 1,
+     'interim_results_dataset': None}
+    >>> bfgs(f, f1, 1, maxiter=5000)
+    {'point': 1.4142144676627526,
+     'value_func': -0.35355339059320134,
+     'report': 1,
+     'interim_results_dataset': None}
+    """
+    if extreme_type == 'max':
+        f = lambda x: -func(x)
+        diff_f = lambda x: -diff_func(x)
+    res = {'point': None, 'value_func': None, 'report': None,
+           'interim_results_dataset': None}
+    dataset = []
+    iterat = 0
+    if extreme_type == 'max':
+        g = diff_f(x0)
+    else:
+        g = diff_func(x0)
+    Hk = 1  # is initial approximation
+    xk = x0
+    while abs(g) > accuracy and iterat < maxiter and xk < maxarg:
+        iterat += 1
+        if dataset_rec:
+            dataset.append([xk, func(xk), g, Hk])
+        if interim_results:
+            print(f'''{iterat}:
+            xk = {xk}    f(xk) = {func(xk)}    g = {g}    Hk = {Hk}''')
+        pk = -Hk * g
+        try:
+            if extreme_type == 'max':
+                line_search = optimize.line_search(f, diff_f, np.array(xk),
+                                                   np.array(pk), c1=firstW,
+                                                   c2=secondW)
+            else:
+                line_search = optimize.line_search(func, diff_func, np.array(xk),
+                                                   np.array(pk), c1=firstW,
+                                                   c2=secondW)
+            if line_search[0]:
+                alpha_k = line_search[0]
+            else:
+                print('не смогли найти лучшее приближение')
+                res['report'] = 4
+                break
+        except optimize.linesearch.LineSearchWarning:
+            print('не смогли найти лучшее приближение')
+            res['report'] = 4
+            break
+        xkp = xk + alpha_k * pk
+        sk = xkp - xk
+        xk = xkp
+        if extreme_type == 'max':
+            g2 = diff_f(xk)
+        else:
+            g2 = diff_func(xkp)
+        yk = g2 - g
+        g = g2
+
+        rho = 1.0 / (yk * sk)
+        A1 = 1 - rho * sk * yk
+        A2 = 1 - rho * yk * sk
+        Hk = A1 * Hk * A2 + (rho * sk**2)
+
+
+    res['point'] = xk
+    res['value_func'] = func(xk)
+    if dataset_rec:
+        res['interim_results_dataset'] = pd.DataFrame(dataset,
+                                                      columns=['xk', 'f', 'g', 'Hk'])
+    if abs(g) <= accuracy and res['report'] != 4:
+        res['report'] = 1
+    elif iterat == maxiter and res['report'] != 4:
+        res['report'] = 2
+    elif xk >= maxarg and res['report'] != 4:
+        res['report'] = 3
+    return res
