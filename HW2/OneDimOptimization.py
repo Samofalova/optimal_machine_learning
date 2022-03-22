@@ -314,6 +314,7 @@ def BrantMethod(func: str,
             results = results.append({'step_num': step_num, 'a': a, 'b': b, 
                                       'x': x, 'w': w, 'v': v, 'u': u}, ignore_index=True)
             
-    
+    if intermediate_writing:
+                print(result)
     
     return x, func(x), 'Достигнута задання точность'
