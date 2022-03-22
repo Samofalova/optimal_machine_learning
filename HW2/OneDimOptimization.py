@@ -317,4 +317,4 @@ def BrantMethod(func: str,
     if intermediate_writing:
                 print(result)
     
-    return x, func(x), 'Достигнута задання точность'
+    return x, func(x), 'Достигнута заданная точность'
