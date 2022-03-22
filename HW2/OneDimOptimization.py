@@ -433,8 +433,10 @@ def bfgs(func, diff_func, x0, extreme_type='min', accuracy=10**-5, maxarg=100,
 
         iterat += 1
         rho = 1.0 / (yk * sk)
-        Hk *= (1 - 2*rho*yk)**2  # выведенная формула c помощью матричных вычислений
-#         Hk *= np.sqrt((1 - 2*rho*yk)**2)
+        A1 = 1 - rho * sk * yk
+        A2 = 1 - rho * yk * sk
+        Hk = A1 * Hk * A2 + (rho * sk**2)
+
 
     res['point'] = xk
     res['value_func'] = func(xk)
