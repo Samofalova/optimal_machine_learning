@@ -318,6 +318,8 @@ def BrantMethod(func: str,
                 print(result)
     
     return x, func(x), 'Достигнута заданная точность'
+
+  
 def bfgs(func, diff_func, x0, extreme_type='min', accuracy=10**-5, maxarg=100,
          firstW=10**-4, secondW=0.1, maxiter=500, interim_results=False,
          dataset_rec=False):
