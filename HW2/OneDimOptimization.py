@@ -139,6 +139,7 @@ def parabola_method(func: str,
         - The found value of the extremum point coordinate;
         - Function value at the extremum point;
         - Algorithm report;
+        - pd.DataFrame with information about steps (if intermediate_writing = True);
     """
     try:
         X = symbols('X')
@@ -167,14 +168,15 @@ def parabola_method(func: str,
                         print(f"iteration_num = {iteration_num}; x1 = {x1}; x2 = {x2}; x3 = {x3}; f1 = {f1}; f2 = {f2}; f3 = {f3}")
                     if intermediate_writing:
                         results = results.append({'x1': x1, 'x2': x2, 'x3': x3, 'f1': f1, 'f2': f2, 'f3': f3}, ignore_index=True)
-                print(results)
                 if figure:
                     f_res = F.subs(x, x_res)
                     p = plot(func, show=False)
                     fig, axe = get_sympy_subplots(p)
                     axe.plot(x_res, f_res, "o", c='red')
                     fig.show()
-                return x_res, f_res, 'Значение с заданной точностью', d
+                if intermediate_writing:
+                    return x_res, f_res, 'Достигнуто максимальное количество итераций', results
+                return x_res, f_res, 'Достигнуто максимальное количество итераций'
 
             # first step
             if iteration_num == 0:
@@ -232,15 +234,14 @@ def parabola_method(func: str,
 
         f_res = F.subs(X, x_res)
 
-        if intermediate_writing:
-            print(results)
-
         if figure:
             p = plot(func, show=False)
             fig, axe = get_sympy_subplots(p)
             axe.plot(x_res, f_res, "o", c='red')
             fig.show()
-
+            
+        if intermediate_writing:
+            return x_res, f_res, 'Достигнуто максимальное количество итераций', results
         return x_res, f_res, 'Достигнуто максимальное количество итераций'
     except:
         return 'Выполнено с ошибкой'
@@ -252,6 +253,26 @@ def BrantMethod(func: str,
                     max_iterations: int=500,
                     intermediate_results: bool=False,
                     intermediate_writing: bool=False):
+  
+    """
+    Search for the extremum of a function of one variable using the Brant method.
+    
+    args:
+        mandatory:
+            - func - function in analytical form;
+            - limits - optimization area boundaries;
+        optional:
+            - accuracy - optimization precision by argument (default: 10^-5);
+            - max_iterations - maximum number of iterations (default: 500;
+            - intermediate_results - flag "output intermediate results" (default: False);
+            - intermediate_writing - flag "writing intermediate results to dataset" (default: False);
+            
+    outputs:
+        - The found value of the extremum point coordinate;
+        - Function value at the extremum point;
+        - Algorithm report;
+        - pd.DataFrame with information about steps (if intermediate_writing = True);
+    """
     
     r = (3 - 5**(1/2)) / 2
     
@@ -272,8 +293,7 @@ def BrantMethod(func: str,
             if intermediate_results:
                 print(f'step_num: {step_num}, a: {a}, b: {b}, x: {x}, w: {w}, v: {w}, u: {u}')
             if intermediate_writing:
-                print(result)
-                
+                return x, func(x), 'Достигнута заданная точность', results
             return x, func(x), 'Достигнуто макисмальное количество итераций'
             
         g = d_prv / 2
@@ -315,8 +335,7 @@ def BrantMethod(func: str,
                                       'x': x, 'w': w, 'v': v, 'u': u}, ignore_index=True)
             
     if intermediate_writing:
-                print(result)
-    
+                return x, func(x), 'Достигнута заданная точность', results
     return x, func(x), 'Достигнута заданная точность'
 
   
