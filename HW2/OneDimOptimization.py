@@ -298,7 +298,7 @@ def BrantMethod(func: str,
             
         g = d_prv / 2
         d_prv = d_cur
-        u = center_point(F, x, w, v)
+        u = center_point(func, x, w, v)
         if not u or (u < a or u > b) or abs(u - x) > g:
             if x < (a + b) / 2:
                 u = x + r*(b - x)
