@@ -7,6 +7,9 @@ from functools import partial
 
 
 def get_output(func, x_new, dataset_rec, flag,  dataset=None):
+    """
+    Generates output data for functions.
+    """
     res = {'point': None, 'value_func': None, 'report': None,
            'interim_results_dataset': None}
     args_func = inspect.getfullargspec(func)[0]
@@ -22,11 +25,49 @@ def get_output(func, x_new, dataset_rec, flag,  dataset=None):
 
 
 def _find_lr_rate(lr, func, diff_func, x):
+    """
+    Returns the value of the learning rate for the fastest descent.
+    Used for GDSteepest.
+    """
     return func(*[x[i] - lr*diff_func(*x)[i] for i in range(len(x))])
 
 
 def GD(func, diff_func, lr_rate=0.1, x_old=None, accuracy=10**-5, maxiter=500,
        interim_results=False, dataset_rec=False):
+    """
+    Returns dict with the minimum of a function using the gradient descent,
+    value of function, report and intermediate results in pandas.DataFrame
+    (opt). Given the function and the derivative of the function, return the
+    minimum of the function with the specified accuracy.
+    Parameters
+    ----------
+    func : callable ``f(x)``
+        Objective function to be minimized.
+    diff_func : callable ``f'(x)``
+        Derivative of the objective function.
+    lr_rate : float
+        Learning rate or step.
+    x_old: list
+        Starting point
+    accuracy : float, optional
+        stop criterion.
+    maxiter : int
+        Maximum number of iterations to perform.
+    interim_results : bool, optional
+        If True, print intermediate results.
+    dataset_rec : bool, optional
+        If True, an entry in pandas.DataFrame intermediate results.
+    Examples
+    --------
+    >>> from HW3.gradient import *
+    >>> def f(x, y):
+            return x**2 + 2*y
+    >>> def pf(x, y):
+            return np.array([2*x, 2])
+    >>> minimum = GD(f, pf, lr_rate=0.05)
+    >>> print(minimum['point'])
+    [1.3220708194808046e-23, -49.000000000000426]
+    """
     flag = None
     dataset = []
     iterat = 0
@@ -56,6 +97,44 @@ def GD(func, diff_func, lr_rate=0.1, x_old=None, accuracy=10**-5, maxiter=500,
 
 def GDSS(func, diff_func, lr_rate=0.1, e=0.1, d=0.5, x_old=None, maxiter=500,
          accuracy=10**-5, interim_results=False, dataset_rec=False):
+    """
+    Returns dict with the minimum of a function using the gradient descent with
+    step splitting, value of function, report and intermediate results in
+    pandas.DataFrame (opt). Given the function and the derivative of the
+    function, return the minimum of the function with the specified accuracy.
+    Parameters
+    ----------
+    func : callable ``f(x)``
+        Objective function to be minimized.
+    diff_func : callable ``f'(x)``
+        Derivative of the objective function.
+    lr_rate : float
+        Learning rate or step.
+    e : float
+        The value of the evaluation parameter.
+    d : float
+        The value of the crushing parameter.
+    x_old: list
+        Starting point
+    accuracy : float, optional
+        stop criterion.
+    maxiter : int
+        Maximum number of iterations to perform.
+    interim_results : bool, optional
+        If True, print intermediate results.
+    dataset_rec : bool, optional
+        If True, an entry in pandas.DataFrame intermediate results.
+    Examples
+    --------
+    >>> from HW3.gradient import *
+    >>> def f(x, y):
+            return x**2 + 2*y
+    >>> def pf(x, y):
+            return np.array([2*x, 2])
+    >>> minimum = GDSS(f, pf, lr_rate=0.05)
+    >>> print(minimum['point'])
+    [1.3220708194808046e-23, -49.000000000000426]
+    """
     res = {'point': None, 'value_func': None, 'report': None,
            'interim_results_dataset': None}
     flag = None
@@ -89,6 +168,38 @@ def GDSS(func, diff_func, lr_rate=0.1, e=0.1, d=0.5, x_old=None, maxiter=500,
 
 def GDSteepest(func, diff_func, x_old=None, accuracy=10**-5, maxiter=500,
                interim_results=False, dataset_rec=False):
+    """
+    Returns dict with the minimum of a function using the steepest gradient
+    descent, value of function, report and intermediate results in
+    pandas.DataFrame (opt). Given the function and the derivative of the
+    function, return the minimum of the function with the specified accuracy.
+    Parameters
+    ----------
+    func : callable ``f(x)``
+        Objective function to be minimized.
+    diff_func : callable ``f'(x)``
+        Derivative of the objective function.
+    x_old: list
+        Starting point
+    accuracy : float, optional
+        stop criterion.
+    maxiter : int
+        Maximum number of iterations to perform.
+    interim_results : bool, optional
+        If True, print intermediate results.
+    dataset_rec : bool, optional
+        If True, an entry in pandas.DataFrame intermediate results.
+    Examples
+    --------
+    >>> from HW3.gradient import *
+    >>> def f(x, y):
+            return x**2 + 2*y
+    >>> def pf(x, y):
+            return np.array([2*x, 2])
+    >>> minimum = GDSteepest(f, pf)
+    >>> print(minimum['point'])
+    [0.9999999853676476, -998.9999999854012]
+    """
     flag = None
     dataset = []
     iterat = 0
