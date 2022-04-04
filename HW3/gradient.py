@@ -25,7 +25,7 @@ def _find_lr_rate(lr, func, diff_func, x):
     return func(*[x[i] - lr*diff_func(*x)[i] for i in range(len(x))])
 
 
-def GD(func, diff_func, lr_rate=None, x_old=None, accuracy=10**-5, maxiter=500,
+def GD(func, diff_func, lr_rate=0.1, x_old=None, accuracy=10**-5, maxiter=500,
        interim_results=False, dataset_rec=False):
     flag = None
     dataset = []
@@ -54,7 +54,7 @@ def GD(func, diff_func, lr_rate=None, x_old=None, accuracy=10**-5, maxiter=500,
     return get_output(func, x_new, dataset_rec, flag, dataset)
 
 
-def GDSS(func, diff_func, lr_rate=None, e=0.1, d=0.5, x_old=None, maxiter=500,
+def GDSS(func, diff_func, lr_rate=0.1, e=0.1, d=0.5, x_old=None, maxiter=500,
          accuracy=10**-5, interim_results=False, dataset_rec=False):
     res = {'point': None, 'value_func': None, 'report': None,
            'interim_results_dataset': None}
