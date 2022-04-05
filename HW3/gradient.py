@@ -4,6 +4,7 @@ import numpy as np
 from numpy.linalg import norm
 from scipy.optimize import line_search, brent
 from functools import partial
+from copy import deepcopy
 
 
 def get_output(func, x_new, dataset_rec, flag,  dataset=None):
@@ -228,3 +229,71 @@ def GDSteepest(func, diff_func, x_old=None, accuracy=10**-5, maxiter=500,
     elif iterat == maxiter and flag != 2:
         flag = 1
     return get_output(func, x_new, dataset_rec, flag, dataset)
+
+
+def newton_algorithm(func, func_diff, func_diff_2x, func_diff_xy,
+                     lamda=1, max_steps=500, accuracy=10**-5):
+    '''
+    Returns tuple with the minimum of a function using the newton algorithm with conjugate 
+    gradient and the value of the point in the extremum points.
+    Parameters
+    ----------
+    func : callable ``f(x)``
+        Objective function to be minimized.
+    func_diff : callable ``f'(x)``
+        Derivative of the objective function.
+    func_diff_2x: callable ``f''(x)``
+        The double derivative of the objective function by one variable.
+    func_diff_xy: callable ``f''(x, y)``
+        The double derivative of the objective function by x and y variables.
+    lamda: int
+        Algorithm step.
+    accuracy : float, optional
+        stop criterion.
+    max_steps : int
+        Maximum number of iterations to perform.
+    Examples
+    --------
+    >>> from HW3.gradient import *
+    >>> def f(x, y):
+            return x**2 + 2*y
+    >>> def f_diff(x, y):
+            return np.array([2*x, 2])
+    >>> def f_diff_2x(x, y):
+            return np.array([2, 0])
+    >>> def f_diff_xy(x, y):
+            return np.array([2, 2])
+    >>> m = newton_algorithm(f, f_diff, f_diff_2x, f_diff_xy)
+    >>> print(m)
+    (array([[0.],
+        [0.]]),
+     0.0)
+    """
+    '''
+    args_func = inspect.getfullargspec(func)[0]
+    shape_arg = len(args_func)
+    ones = [1]*shape_arg
+    first_diff = func_diff(*ones).reshape((shape_arg, 1))
+    second_diff_2x = func_diff_2x(*ones).reshape((shape_arg, 1))
+    second_diff_xy = func_diff_xy(*ones).reshape((shape_arg, 1))
+    
+
+    x_old = np.ones((shape_arg, 1))
+    d2_f = np.zeros((shape_arg,) * 2)
+    for i in range(shape_arg):
+        d2_f[i][i] = second_diff_2x[i]
+        d2_f[i][i-1] = second_diff_xy[i]
+        
+    d2_f_inv = np.linalg.inv(d2_f)
+    
+    steps = 0
+    crit_stop = deepcopy(accuracy)
+    while steps < 500 and crit_stop <= accuracy:
+        x_new = x_old - lamda*np.dot(d2_f_inv, first_diff)
+        crit_stop = norm([list(x_new.reshape(1, x_new.size)[0])[i] - list(x_old.reshape(1, x_old.size)[0])[i] for i in range(shape_arg)])
+        print(crit_stop)
+        x_old = deepcopy(x_new)
+        steps += 1
+        
+    return x_new, func(*list(x_new.reshape(1, x_new.size)[0]))
+
