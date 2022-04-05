@@ -288,7 +288,7 @@ def newton_algorithm(func, func_diff, func_diff_2x, func_diff_xy,
     
     steps = 0
     crit_stop = deepcopy(accuracy)
-    while steps < 500 and crit_stop <= accuracy:
+    while steps < max_steps and crit_stop <= accuracy:
         x_new = x_old - lamda*np.dot(d2_f_inv, first_diff)
         crit_stop = norm([list(x_new.reshape(1, x_new.size)[0])[i] - list(x_old.reshape(1, x_old.size)[0])[i] for i in range(shape_arg)])
         print(crit_stop)
