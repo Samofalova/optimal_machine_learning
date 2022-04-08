@@ -151,10 +151,16 @@ def poly_regression(X: pd.DataFrame, y: list, degree, regularization=None, alpha
         X = X.to_numpy().reshape(-1, 1)
            
     if regularization is None:
-        reg = PolynomialFeatures(degree=degree).fit(X, y)
+        p = PolynomialFeatures(degree=degree)
+        X = p.fit_transform(X)
+        reg = LinearRegression().fit(X, y)
     elif regularization == 'L1':
+        p = PolynomialFeatures(degree=degree)
+        X = p.fit_transform(X)
         reg = Lasso(alpha=alpha).fit(X, y)
     elif regularization == 'L2':
+        p = PolynomialFeatures(degree=degree)
+        X = p.fit_transform(X)
         reg = Ridge(alpha=alpha).fit(X, y)
     
     # Стьюдент
