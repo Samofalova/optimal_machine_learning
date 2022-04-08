@@ -72,11 +72,14 @@ def plot_3d_regression(X, y, coef, a0, n_point):
     plt.show()
 
 
-def plot_2d_regression(X, y, coef, a0, n_point): 
-    xs = np.arange(n_point)
-    zs = a0 * np.exp(coef*xs)
+def plot_2d_regression(X, y, coef, a0, reg_type):
+    xs = np.linspace(X.min()-1, X.max()+1)
+    if reg_type == 'lin':
+        zs = a0 + xs*coef
+    else:
+        zs = a0 * np.exp(coef*xs)
     plt.plot(xs, zs, color="blue", linewidth=3)
-    plt.scatter(X, y, marker='.', color='red')
+    plt.scatter(X, y, marker='.', color='red') 
     plt.show()
 
 
