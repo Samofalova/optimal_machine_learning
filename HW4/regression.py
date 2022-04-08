@@ -7,12 +7,15 @@ from mpl_toolkits.mplot3d import Axes3D
 
 class InsufficientData(Exception):
     def __str__(self):
-        return 'Данных недостаточно. Их должно быть не менее 2^k, где k – количество признаков.'
+        string_exp = 'Данных недостаточно. Их должно быть не менее 2^k строк, \
+где k – количество признаков. Если признак 1, то хотя бы 10 строк.'
+        return string_exp
 
 
 class LinearlyDependent(Exception):
     def __str__(self):
         return 'Присутствуют линейно зависимые признаки. Мы не можем применить МНК.'
+
 
 class DegreeError(Exception):
     def __str__(self):
@@ -32,6 +35,16 @@ def student_del(X, y):
                 X_new = X_new.drop(index=line)
                 y_new = y_new.drop(index=line)
     return X_new, y_new
+
+
+def check_data(X):
+    if len(X.shape) == 2 and X.shape[1] > 1:
+        if X.shape[0] < 2**X.shape[1] or len(X) < 10:
+            raise InsufficientData
+    else:
+        if len(X) < 10:
+            raise InsufficientData
+
 
 def plot_3d_regression(X, y, coef, a0, n_point):
     fig = plt.figure()
@@ -58,16 +71,10 @@ def plot_2d_regression(X, y, coef, a0, n_point):
 
 def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_point=7000):
     y_new = np.log(y)
-    
-    X, y_new = student_del(X, y_new)
-    
-    if len(X.shape) == 2:
-        if X.shape[0] < 2**X.shape[1]:
-            raise InsufficientData
-    else:
+    check_data(X)
+    if len(X.shape) < 2:
         X = X.to_numpy().reshape(-1, 1)
-    
-    
+            
     if regularization is None:
         if X.shape[1] >= 2 and np.linalg.det(X.T@X) == 0:
             raise LinearlyDependent
@@ -76,8 +83,18 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_po
         reg = Lasso(alpha=alpha).fit(X, y_new)
     elif regularization == 'L2':
         reg = Ridge(alpha=alpha).fit(X, y_new)
-    # Стьюдент
-    weights, bias = reg.coef_, np.exp(reg.intercept_)
+    elif regularization == 'Student':
+        X_new, y_log_new = student_del(pd.DataFrame(X), 
+                                       pd.DataFrame(y_new))
+        check_data(X_new)
+        if len(X_new.shape) < 2:
+            X_new = X_new.to_numpy().reshape(-1, 1)
+        reg = LinearRegression().fit(X_new, y_log_new)
+    X = pd.DataFrame(X)
+    if regularization == 'Student':
+        weights, bias = reg.coef_[0], np.exp(reg.intercept_)[0]
+    else:
+        weights, bias = reg.coef_, np.exp(reg.intercept_)
     if X.shape[1] == 2:
         func = f'{round(bias, tol)}'
         k = len(weights)
@@ -97,6 +114,7 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_po
     return {'func': func, 
             'weights': weights, 
             'bias': bias}
+
 
 
 def poly_regression(X: pd.DataFrame, y: list, degree, regularization=None, alpha=1.0, draw=False, n_point=7000) -> dict:
