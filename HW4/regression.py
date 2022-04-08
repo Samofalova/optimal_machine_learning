@@ -98,17 +98,17 @@ def poly_regression(X: pd.DataFrame, y: list, degree, regularization=None, alpha
         reg = Ridge(alpha=alpha).fit(X, y)
     
     # Стьюдент
-    weights, bias = reg.coef_, np.exp(reg.intercept_)
+    weights, bias = reg.coef_, reg.intercept_
     if X.shape[1] == 2:
         func = f'{round(bias, tol)}'
         k = len(weights)
         for i in range(k):
             coef = weights[i]
-            func = func + f' * exp({round(coef, tol)}*x{k-i})'
+            func = func + f' * {round(coef, tol)}*x{k-i}'
     else:
         weights = weights[0]
         bias = bias
-        func = f'{round(bias, tol)}' + f' * exp({round(weights, tol)}*x0)'
+        func = f'{round(bias, tol)}' + f' * {round(weights, tol)}*x0'
     if draw == True and X.shape[1] > 2:
         print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
     elif draw == True and X.shape[1] == 2:
