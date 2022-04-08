@@ -127,9 +127,9 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_po
     if draw == True and X.shape[1] > 2:
         print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
     elif draw == True and X.shape[1] == 2:
-        plot_3d_regression(X, y, weights, bias, n_point)
+        plot_3d_regression(X, y, weights, bias)
     elif draw == True and X.shape[1] == 1:
-        plot_2d_regression(X, y, weights, bias, n_point)
+        plot_2d_regression(X, y, weights, bias, reg_type='exp')
     return {'func': func, 
             'weights': weights, 
             'bias': bias}
