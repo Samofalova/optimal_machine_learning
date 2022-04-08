@@ -18,6 +18,20 @@ class DegreeError(Exception):
     def __str__(self):
         return 'Степень полинома должна быть целым неотрицательным числом.'
 
+    
+def student_del(X, y):
+    X_new = X.copy()
+    y_new = y.copy()
+    for line in range(len(X)):
+        if len(X.shape) == 2:
+            if X_new.drop(index=line).var().sum() < X_new.var().sum():
+                X_new = X_new.drop(index=line)
+                y_new = y_new.drop(index=line)
+        else:
+            if X_new.drop(index=line).var() < X_new.var():
+                X_new = X_new.drop(index=line)
+                y_new = y_new.drop(index=line)
+    return X_new, y_new
 
 def plot_3d_regression(X, y, coef, a0, n_point):
     fig = plt.figure()
@@ -44,12 +58,16 @@ def plot_2d_regression(X, y, coef, a0, n_point):
 
 def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_point=7000):
     y_new = np.log(y)
+    
+    X, y_new = student_del(X, y_new)
+    
     if len(X.shape) == 2:
         if X.shape[0] < 2**X.shape[1]:
             raise InsufficientData
     else:
         X = X.to_numpy().reshape(-1, 1)
-            
+    
+    
     if regularization is None:
         if X.shape[1] >= 2 and np.linalg.det(X.T@X) == 0:
             raise LinearlyDependent
@@ -84,12 +102,14 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_po
 def poly_regression(X: pd.DataFrame, y: list, degree, regularization=None, alpha=1.0, draw=False, n_point=7000) -> dict:
     if degree < 0 and int(degree) != float(degree):
         raise DegreeError
-    
+     
+    X, y_new = student_del(X, y)
+   
     if X.shape[0] < 2**X.shape[1]:
         raise InsufficientData
     else:
         X = X.to_numpy().reshape(-1, 1)
-        
+           
     if regularization is None:
         reg = PolynomialFeatures(degree=degree).fit(X, y)
     elif regularization == 'L1':
