@@ -2,7 +2,8 @@ from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.preprocessing import PolynomialFeatures
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import pandas as pd
+import warnings
 
 
 class InsufficientData(Exception):
@@ -20,6 +21,16 @@ class LinearlyDependent(Exception):
 class DegreeError(Exception):
     def __str__(self):
         return 'Степень полинома должна быть целым неотрицательным числом.'
+
+
+class NegativeValue(Exception):
+    def __str__(self):
+        return 'Значения y должны быть положительными'
+
+
+class VeryBig(Exception):
+    def __str__(self):
+        return 'Свободный член получился слишком большим, чтобы произвести вычисления'
 
     
 def student_del(X, y):
@@ -69,7 +80,10 @@ def plot_2d_regression(X, y, coef, a0, n_point):
     plt.show()
 
 
+
 def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_point=7000):
+    if not (y > 0).all():
+        raise NegativeValue
     y_new = np.log(y)
     check_data(X)
     if len(X.shape) < 2:
@@ -91,10 +105,15 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_po
             X_new = X_new.to_numpy().reshape(-1, 1)
         reg = LinearRegression().fit(X_new, y_log_new)
     X = pd.DataFrame(X)
-    if regularization == 'Student':
-        weights, bias = reg.coef_[0], np.exp(reg.intercept_)[0]
-    else:
-        weights, bias = reg.coef_, np.exp(reg.intercept_)
+    try:
+        with warnings.catch_warnings():
+            warnings.filterwarnings('error')
+            if regularization == 'Student':
+                weights, bias = reg.coef_[0], np.exp(reg.intercept_)[0]
+            else:
+                weights, bias = reg.coef_, np.exp(reg.intercept_)
+    except RuntimeWarning:
+        raise VeryBig
     if X.shape[1] == 2:
         func = f'{round(bias, tol)}'
         k = len(weights)
