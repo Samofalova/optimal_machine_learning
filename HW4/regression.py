@@ -84,7 +84,7 @@ def plot_2d_regression(X, y, coef, a0, reg_type):
 
 
 
-def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_point=7000):
+def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
     if not (y > 0).all():
         raise NegativeValue
     y_new = np.log(y)
