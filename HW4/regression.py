@@ -50,9 +50,9 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False, n_po
             raise LinearlyDependent
         reg = LinearRegression().fit(X, y_new)
     elif regularization == 'L1':
-        reg = Lasso(alpha=alpha)
+        reg = Lasso(alpha=alpha).fit(X, y_new)
     elif regularization == 'L2':
-        reg = Ridge(alpha=alpha)
+        reg = Ridge(alpha=alpha).fit(X, y_new)
     # Стьюдент
     weights, bias = reg.coef_, np.exp(reg.intercept_)
     if X.shape[1] == 2:
