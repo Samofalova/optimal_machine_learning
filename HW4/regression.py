@@ -93,9 +93,9 @@ def poly_regression(X: pd.DataFrame, y: list, degree, regularization=None, alpha
     if regularization is None:
         reg = PolynomialFeatures(degree=degree).fit(X, y)
     elif regularization == 'L1':
-        reg = Lasso(alpha=alpha)
+        reg = Lasso(alpha=alpha).fit(X, y)
     elif regularization == 'L2':
-        reg = Ridge(alpha=alpha)
+        reg = Ridge(alpha=alpha).fit(X, y)
     
     # Стьюдент
     weights, bias = reg.coef_, np.exp(reg.intercept_)
