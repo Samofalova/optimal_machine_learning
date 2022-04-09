@@ -195,24 +195,23 @@ def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=Fa
     
     weights = weights[1:]
     
-    if X.shape[1]==1 and degree==1 : # 1 признак 
-        weights = weights[0] # weights[0] относится к вспомогательному x
+    if X.shape[1]==1 and degree==1 : 
+        weights = weights[0] 
         func = f'{round(bias, tol)} + {round(weights, tol)}*x1'
-    elif X.shape[1]==1 and degree>1: # 1 признак
-        func = f'{round(bias, tol)}' # a0
+    elif X.shape[1]==1 and degree>1: 
+        func = f'{round(bias, tol)}' 
         for i in range(1, degree+1):
             func = func + f' + {round(weights[i-1], tol)}*x1^{i}'
     elif X.shape[1]>=2 and degree==1:
-        func = f'{round(bias, tol)}' # a0
+        func = f'{round(bias, tol)}' 
         for i in range(len(weights)):
             func = func + f' + {round(weights[i], tol)}*x{i+1}'
     else: 
         func = 'К сожалению, мы не можем вывести функцию для множественной полиномиальной регрессии'
     
-    if draw == True and X.shape[1] == 1 and degree==1: # a0+a1*x1
+    if draw == True and X.shape[1] == 1 and degree==1: 
         plot_2d_regression(X, y, weights, bias, reg_type='lin')
     elif draw==True and (X.shape[1]==2 and degree==1):    
-        # a0 + a1*x1 + a2*x2   or a0 + a1*x1 + a2*x1^2
         plot_3d_regression(X_poly, y, weights, bias, reg_type='poly1')
     elif draw==True and (X.shape[1]==1 and degree==2):
         plot_3d_regression(X_poly, y, weights, bias, reg_type='poly2')
