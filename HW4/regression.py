@@ -31,6 +31,10 @@ class NegativeValue(Exception):
 class VeryBig(Exception):
     def __str__(self):
         return 'Свободный член получился слишком большим, чтобы произвести вычисления'
+    
+class RegularizationError(Exception):
+    def __str__(self):
+        return 'К сожалению, мы не можем построить полиномиальную регрессию с регулязацией'
 
     
 def student_del(X, y):
@@ -78,8 +82,9 @@ def plot_2d_regression(X, y, coef, a0, reg_type):
         zs = a0 + xs*coef
     else:
         zs = a0 * np.exp(coef*xs)
-    plt.plot(xs, zs, color="blue", linewidth=3)
-    plt.scatter(X, y, marker='.', color='red') 
+    plt.plot(xs, zs, color="blue", linewidth=3, label='Прогноз')
+    plt.scatter(X, y, marker='.', color='red', label='Исходные') 
+    plt.legend()
     plt.show()
 
 
@@ -139,48 +144,53 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
 
 
 
-def poly_regression(X: pd.DataFrame, y: list, degree, regularization=None, alpha=1.0, draw=False, n_point=7000) -> dict:
-    if degree < 0 and int(degree) != float(degree):
-        raise DegreeError
-     
-    X, y_new = student_del(X, y)
-   
-    if X.shape[0] < 2**X.shape[1]:
-        raise InsufficientData
-    else:
-        X = X.to_numpy().reshape(-1, 1)
-           
-    if regularization is None:
-        p = PolynomialFeatures(degree=degree)
-        X = p.fit_transform(X)
-        reg = LinearRegression().fit(X, y)
-    elif regularization == 'L1':
-        p = PolynomialFeatures(degree=degree)
-        X = p.fit_transform(X)
-        reg = Lasso(alpha=alpha).fit(X, y)
-    elif regularization == 'L2':
-        p = PolynomialFeatures(degree=degree)
-        X = p.fit_transform(X)
-        reg = Ridge(alpha=alpha).fit(X, y)
+def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=False):
     
-    # Стьюдент
-    weights, bias = reg.coef_, reg.intercept_
-    if X.shape[1] == 2:
-        func = f'{round(bias, tol)}'
-        k = len(weights)
-        for i in range(k):
-            coef = weights[i]
-            func = func + f' * {round(coef, tol)}*x{k-i}'
+    if degree <= 0 or type(degree)!=int: 
+        raise DegreeError
+        
+    check_data(X)
+    if len(X.shape) < 2:
+        X = X.to_numpy().reshape(-1, 1)
+    poly = PolynomialFeatures(degree)
+    X_poly = poly.fit_transform(X)
+    if regularization is not None and degree>1:
+        raise RegularizationError
+    
+    if X.shape[1] >= 2 and np.linalg.det(X.T@X) == 0:
+        raise LinearlyDependent
+    reg = LinearRegression().fit(X_poly, y)
+
+    
+    if regularization == 'Student':
+        weights, bias = reg.coef_[0], reg.intercept_[0]
     else:
-        weights = weights[0]
-        bias = bias
-        func = f'{round(bias, tol)}' + f' * {round(weights, tol)}*x0'
-    if draw == True and X.shape[1] > 2:
+        weights, bias = reg.coef_, reg.intercept_    
+
+    X_poly = pd.DataFrame(X_poly)
+
+    if X.shape[1]==1 and degree==1 : # 1 признак 
+        weights = weights[1] # weights[0] относится к вспомогательному x
+        func = f'{round(bias, tol)} + {round(weights, tol)}*x1'
+    elif X.shape[1]==1 and degree>1: # 1 признак
+        func = f'{round(bias, tol)}' # a0
+        for i in range(1, degree+1):
+            func = func + f' + {round(weights[i], tol)}*x1^{i}'
+    elif X.shape[1]>=2 and degree==1:
+        func = f'{round(bias, tol)}' # a0
+        for i in range(len(weights)-1):
+            func = func + f' + {round(weights[i+1], tol)}*x{i+1}'
+    else: 
+        func = 'К сожалению, мы не можем вывести функцию для множественной полиномиальной регрессии'
+    
+    if draw == True and X.shape[1] == 1 and degree==1: # a0+a1*x1
+        plot_2d_regression(X, y, weights, bias, reg_type='lin')
+    elif draw==True and (X.shape[1]==2 and degree==1): # or  (X.shape[1]==1 degree==2)   
+        # a0 + a1*x1 + a2*x2
+        plot_3d_regression(X, y, weights, bias, reg_type='poly')
+    else:
         print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
-    elif draw == True and X.shape[1] == 2:
-        plot_3d_regression(X, y, weights, bias, n_point)
-    elif draw == True and X.shape[1] == 1:
-        plot_2d_regression(X, y, weights, bias, n_point)
+        
     return {'func': func, 
             'weights': weights, 
             'bias': bias}
