@@ -190,22 +190,28 @@ def lin_regression(X, y, tol = 5, regularization = None, alpha=1.0, draw = False
     y_new = y.to_numpy()
     check_data(X)
 
+    if len(X.shape) < 2:
+        X = X.to_numpy().reshape(-1, 1)
+
     if regularization is None:
         reg = LinearRegression().fit(X, y_new)
     elif regularization == 'L1':
         reg = Lasso(alpha=alpha).fit(X, y_new)
     elif regularization == 'L2':
         reg = Ridge(alpha=alpha).fit(X, y_new)
-        #требует доработки
+
     elif regularization == 'Student':
         X_new, y_new = student_del(pd.DataFrame(X), 
                                        pd.DataFrame(y_new))
         check_data(X_new)
         if len(X_new.shape) < 2:
             X_new = X_new.to_numpy().reshape(-1, 1)
-        reg = LinearRegression().fit(x_new, y_new)
+        reg = LinearRegression().fit(X_new, y_new)
 
-    weights, bias = reg.coef_, reg.intercept_
+    if regularization == 'Student':
+        weights, bias = reg.coef_[0], reg.intercept_[0]
+    else:
+        weights, bias = reg.coef_, reg.intercept_
     func = str(round(bias, tol)) + ' '
     for i in range(len(weights)):
         if str(weights[i])[0] == '-':
@@ -215,7 +221,7 @@ def lin_regression(X, y, tol = 5, regularization = None, alpha=1.0, draw = False
     if draw == True and X.shape[1] > 2:
         print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
     elif draw == True and X.shape[1] == 2:
-        plot_3d_regression(X, y, weights, bias)
+        plot_3d_regression(X, y, weights, bias, n_point = 7000)
     elif draw == True and X.shape[1] == 1:
         plot_2d_regression(X, y, weights, bias, reg_type='lin')
     return {'func': func[:-1], 
