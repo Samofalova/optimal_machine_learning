@@ -117,7 +117,7 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
                 weights, bias = reg.coef_, np.exp(reg.intercept_)
     except RuntimeWarning:
         raise VeryBig
-    if X.shape[1] == 2:
+    if X.shape[1] >= 2:
         func = f'{round(bias, tol)}'
         k = len(weights)
         for i in range(k):
