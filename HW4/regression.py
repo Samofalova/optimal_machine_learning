@@ -61,17 +61,41 @@ def check_data(X):
             raise InsufficientData
 
 
-def plot_3d_regression(X, y, coef, a0, n_point):
+def plot_3d_regression(X, y, coef, a0, reg_type):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(X.iloc[:, 0], X.iloc[:, 1], y, marker='.', color='red')
     ax.set_xlabel("X0")
     ax.set_ylabel("X1")
     ax.set_zlabel("y")
+    
+    if reg_type=='lin':
+        ax.scatter(X.iloc[:, 0], X.iloc[:, 1], y, marker='.', color='red') 
 
-    xs = np.tile(np.arange(n_point), (n_point,1))
-    ys = np.tile(np.arange(n_point), (n_point,1)).T
-    zs = a0 * np.exp(coef[0]*xs) * np.exp(ys * coef[1])
+        a = np.arange(min(X.min())-1, max(X.max())+1)
+        xs = np.tile(a,(len(a),1))
+        ys = np.tile(a, (len(a),1)).T       
+        zs = a0 + coef[0]*xs + ys * coef[1]
+
+    elif reg_type=='exp':
+        ax.scatter(X.iloc[:, 0], X.iloc[:, 1], y, marker='.', color='red') 
+
+        a = np.arange(min(X.min())-1, max(X.max())+1)
+        xs = np.tile(a,(len(a),1))
+        ys = np.tile(a, (len(a),1)).T  
+        zs = a0 * np.exp(coef[0]*xs) * np.exp(ys * coef[1])
+    elif reg_type=='poly1': 
+        ax.scatter(X.iloc[:, 1], X.iloc[:, 2], y, marker='.', color='red') 
+        a = np.arange(min(X.iloc[:, 1:].min())-1, max(X.iloc[:, 1:].max())+1)
+        xs = np.tile(a,(len(a),1))
+        ys = np.tile(a, (len(a),1)).T 
+        zs = a0 + coef[0]*xs + ys * coef[1]
+    else:
+        ax.scatter(X.iloc[:, 1], X.iloc[:, 2], y, marker='.', color='red') 
+        a = np.arange(X.iloc[:, 1].min(), X.iloc[:, 1].max())
+        xs = np.tile(a,(len(a),1))
+        ys = np.square(np.tile(a, (len(a),1))).T 
+        zs = a0 + coef[0]*xs + xs**2 * coef[1]      
+
     ax.plot_surface(xs, ys, zs, alpha=0.5)
     plt.show()
 
@@ -135,7 +159,7 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
     if draw == True and X.shape[1] > 2:
         print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
     elif draw == True and X.shape[1] == 2:
-        plot_3d_regression(X, y, weights, bias)
+        plot_3d_regression(X, y, weights, bias, reg_type='exp')
     elif draw == True and X.shape[1] == 1:
         plot_2d_regression(X, y, weights, bias, reg_type='exp')
     return {'func': func, 
@@ -168,26 +192,30 @@ def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=Fa
         weights, bias = reg.coef_, reg.intercept_    
 
     X_poly = pd.DataFrame(X_poly)
-
+    
+    weights = weights[1:]
+    
     if X.shape[1]==1 and degree==1 : # 1 признак 
-        weights = weights[1] # weights[0] относится к вспомогательному x
+        weights = weights[0] # weights[0] относится к вспомогательному x
         func = f'{round(bias, tol)} + {round(weights, tol)}*x1'
     elif X.shape[1]==1 and degree>1: # 1 признак
         func = f'{round(bias, tol)}' # a0
         for i in range(1, degree+1):
-            func = func + f' + {round(weights[i], tol)}*x1^{i}'
+            func = func + f' + {round(weights[i-1], tol)}*x1^{i}'
     elif X.shape[1]>=2 and degree==1:
         func = f'{round(bias, tol)}' # a0
-        for i in range(len(weights)-1):
-            func = func + f' + {round(weights[i+1], tol)}*x{i+1}'
+        for i in range(len(weights)):
+            func = func + f' + {round(weights[i], tol)}*x{i+1}'
     else: 
         func = 'К сожалению, мы не можем вывести функцию для множественной полиномиальной регрессии'
     
     if draw == True and X.shape[1] == 1 and degree==1: # a0+a1*x1
         plot_2d_regression(X, y, weights, bias, reg_type='lin')
-    elif draw==True and (X.shape[1]==2 and degree==1): # or  (X.shape[1]==1 degree==2)   
-        # a0 + a1*x1 + a2*x2
-        plot_3d_regression(X, y, weights, bias, reg_type='poly')
+    elif draw==True and (X.shape[1]==2 and degree==1):    
+        # a0 + a1*x1 + a2*x2   or a0 + a1*x1 + a2*x1^2
+        plot_3d_regression(X_poly, y, weights, bias, reg_type='poly1')
+    elif draw==True and (X.shape[1]==1 and degree==2):
+        plot_3d_regression(X_poly, y, weights, bias, reg_type='poly2')
     else:
         print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
         
@@ -231,7 +259,7 @@ def lin_regression(X, y, tol = 5, regularization = None, alpha=1.0, draw = False
     if draw == True and X.shape[1] > 2:
         print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
     elif draw == True and X.shape[1] == 2:
-        plot_3d_regression(X, y, weights, bias, n_point = 7000)
+        plot_3d_regression(X, y, weights, bias, reg_type='lin')
     elif draw == True and X.shape[1] == 1:
         plot_2d_regression(X, y, weights, bias, reg_type='lin')
     return {'func': func[:-1], 
