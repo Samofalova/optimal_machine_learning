@@ -7,6 +7,9 @@ import warnings
 
 
 class InsufficientData(Exception):
+    """
+    Rises when there is not enough data to build a model.
+    """
     def __str__(self):
         string_exp = 'Данных недостаточно. Их должно быть не менее 2^k строк, \
 где k – количество признаков. Если признак 1, то хотя бы 10 строк.'
@@ -14,30 +17,50 @@ class InsufficientData(Exception):
 
 
 class LinearlyDependent(Exception):
+    """
+    Rises when there is a linear relationship between the signs, which makes it impossible
+    to apply the method of least squares.
+    """
     def __str__(self):
         return 'Присутствуют линейно зависимые признаки. Мы не можем применить МНК.'
 
 
 class DegreeError(Exception):
+    """
+    Rises when an incorrect degree is entered to construct a polynomial regression.
+    """
     def __str__(self):
         return 'Степень полинома должна быть целым неотрицательным числом.'
 
 
 class NegativeValue(Exception):
+    """
+    Rises when negative values of y have been fed to the input for the exponential regression. 
+    """
     def __str__(self):
         return 'Значения y должны быть положительными'
 
 
 class VeryBig(Exception):
+    """
+    Rises when the free term in the exponential regression is too large and further calculations 
+    are impossible. 
+    """
     def __str__(self):
         return 'Свободный член получился слишком большим, чтобы произвести вычисления'
     
 class RegularizationError(Exception):
+    """
+    It raises when one tries to apply regularization to polynomial regression. 
+    """
     def __str__(self):
         return 'К сожалению, мы не можем построить полиномиальную регрессию с регулязацией'
 
     
 def student_del(X, y):
+    """
+    Excludes points from the data according to Student's regularization.
+    """
     X_new = X.copy()
     y_new = y.copy()
     for line in range(len(X)):
@@ -53,6 +76,9 @@ def student_del(X, y):
 
 
 def check_data(X):
+    """
+    Checks the data size for sufficiency to build an adequate model.
+    """
     if len(X.shape) == 2 and X.shape[1] > 1:
         if X.shape[0] < 2**X.shape[1] or len(X) < 10:
             raise InsufficientData
@@ -62,6 +88,22 @@ def check_data(X):
 
 
 def plot_3d_regression(X, y, coef, a0, reg_type):
+    """
+    Plots the graph of the function and plots points from the dataset. 
+    Works if there are two feature. 
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        A dataset of features.
+    y : numpy.array or pandas.DataFrame
+        A dataset of targets.
+    coef : numpy.array
+        The coefficients at the features in the resulting function.
+    a0: float or numpy.float64
+        The free term in the resulting function.
+    reg_type : string
+        Type of function.
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.set_xlabel("X0")
@@ -101,6 +143,22 @@ def plot_3d_regression(X, y, coef, a0, reg_type):
 
 
 def plot_2d_regression(X, y, coef, a0, reg_type):
+    """
+    Plots the graph of the function and plots points from the dataset. 
+    Works if there are one feature. 
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        A dataset of features.
+    y : numpy.array or pandas.DataFrame
+        A dataset of targets.
+    coef : numpy.array
+        The coefficients at the features in the resulting function.
+    a0: float or numpy.float64
+        The free term in the resulting function.
+    reg_type : string
+        Type of function.
+    """
     xs = np.linspace(X.min()-1, X.max()+1)
     if reg_type == 'lin':
         zs = a0 + xs*coef
@@ -114,6 +172,38 @@ def plot_2d_regression(X, y, coef, a0, reg_type):
 
 
 def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
+    """
+    Ordinary least squares exponential regression. Fits the model to minimize the residual 
+    sum of squares between the observed targets of the data set and the targets predicted 
+    by the approximation.
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        A dataset of features.
+    y : pandas.DataFrame
+        A dataset of targets.
+    tol : int, default=
+        The number of decimal places to round the coefficient when writing the function 
+        in analytic form.
+    regularization: string, optional
+        Type of regularization.
+    alpha : float, default=1.0
+        Constant for regularization.
+    draw : bool, optional
+        Flag for the chart. If the value is True, the graph is drawn. Works only for 
+        two- and three-dimensional cases.
+    Examples
+    --------
+    >>> from HW4.regression import *
+    >>> import pandas as pd
+    >>> import yfinance as yf
+    >>> aapl = yf.download('AAPL', '2021-01-01', '2022-01-01')
+    >>> aapl = aapl.reset_index(level=0)
+    >>> exp_regression(aapl['Volume'], aapl['Close'])
+    {'func': '143.6968 * exp(-0.0*x0)',
+     'weights': -2.697485449323164e-10,
+     'bias': 143.6967960345703}
+    """
     if not (y > 0).all():
         raise NegativeValue
     y_new = np.log(y)
@@ -169,6 +259,38 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
 
 
 def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=False):
+    """
+    Ordinary least squares polynomial regression. Fits the model to minimize the residual 
+    sum of squares between the observed targets of the data set and the targets predicted 
+    by the approximation.
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        A dataset of features.
+    y : pandas.DataFrame
+        A dataset of targets.
+    tol : int, default=
+        The number of decimal places to round the coefficient when writing the function 
+        in analytic form.
+    regularization: string, optional
+        Type of regularization.
+    alpha : float, default=1.0
+        Constant for regularization.
+    draw : bool, optional
+        Flag for the chart. If the value is True, the graph is drawn. Works only for 
+        two- and three-dimensional cases.
+    Examples
+    --------
+    >>> from HW4.regression import *
+    >>> import pandas as pd
+    >>> import yfinance as yf
+    >>> aapl = yf.download('AAPL', '2021-01-01', '2022-01-01')
+    >>> aapl = aapl.reset_index(level=0)
+    >>> poly_regression(aapl['Volume'], aapl['Close'], degree=1)
+    {'func': '143.4969 + -0.0*x1',
+     'weights': -2.805183057424643e-08,
+     'bias': 143.49689552425573}
+    """
     
     if degree <= 0 or type(degree)!=int: 
         raise DegreeError
@@ -224,6 +346,38 @@ def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=Fa
 
 
 def lin_regression(X, y, tol = 5, regularization = None, alpha=1.0, draw = False):
+    """
+    Ordinary least squares linear regression. Fits the model to minimize the residual 
+    sum of squares between the observed targets of the data set and the targets predicted 
+    by the approximation.
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        A dataset of features.
+    y : pandas.DataFrame
+        A dataset of targets.
+    tol : int, default=
+        The number of decimal places to round the coefficient when writing the function 
+        in analytic form.
+    regularization: string, optional
+        Type of regularization.
+    alpha : float, default=1.0
+        Constant for regularization.
+    draw : bool, optional
+        Flag for the chart. If the value is True, the graph is drawn. Works only for 
+        two- and three-dimensional cases.
+    Examples
+    --------
+    >>> from HW4.regression import *
+    >>> import pandas as pd
+    >>> import yfinance as yf
+    >>> aapl = yf.download('AAPL', '2021-01-01', '2022-01-01')
+    >>> aapl = aapl.reset_index(level=0)
+    >>> lin_regression(aapl[['Open', 'Volume']], aapl['Close'], regularization='L2')
+    {'func': '0.33756 + 1.00283x1 -0.0x2',
+     'weights': array([ 1.00283393e+00, -6.79315538e-09]),
+     'bias': 0.33756283615903726}
+    """
     y_new = y.to_numpy()
     check_data(X)
 
