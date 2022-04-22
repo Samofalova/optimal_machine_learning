@@ -1,12 +1,14 @@
 from sympy import *
+from sympy.core.numbers import NaN
 import numpy as np
 
 def log_barriers(func: str, restrictions: list, start_point: tuple, accuracy:float = 10**(-6), max_steps: int=500):
     tao = 1
     v = 10
-    for eq in restrictions:
-        eq = eq[:eq.index('>')].replace(' ', '')
+    for i in range(len(restrictions)):
+        restrictions[i] = restrictions[i][:restrictions[i].index('>')].replace(' ', '')
         
+    #return restrictions
     phi = f'{tao}*({func})'
     for exp in restrictions:
         phi += f' - log({exp})'
@@ -30,12 +32,13 @@ def log_barriers(func: str, restrictions: list, start_point: tuple, accuracy:flo
     next_point = [start_point[i]-xk[i] for i in range(len(start_point))]
     tao = tao*v
     
-    try:
-        res_new = sympify(func).subs(list(zip(symbs, next_point)))
-    except:
+    
+    res_new = sympify(func).subs(list(zip(symbs, next_point)))
+    if type(res_new) == NaN:
         return res
         
     steps = 1
+    return res_new
     while abs(res_new - res) > accuracy and max_steps > steps:
         
         phi = f'{tao}*({func})'
@@ -55,14 +58,11 @@ def log_barriers(func: str, restrictions: list, start_point: tuple, accuracy:flo
 
         xk = ddfx0.inv() @ dfx0
         next_point = [start_point[i]-xk[i] for i in range(len(start_point))]
-        try:
-            res_new = sympify(func).subs(list(zip(symbs, next_point)))
-        except:
+        res_new = sympify(func).subs(list(zip(symbs, next_point)))
+        if type(res_new) == NaN:
             return res_new
         tao = tao*v
         steps += 1
-        
-    res_new = sympify(func).subs(list(zip(symbs, next_point)))
 
     return res_new
 
