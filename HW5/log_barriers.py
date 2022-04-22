@@ -4,6 +4,9 @@ import numpy as np
 def log_barriers(func: str, restrictions: list, start_point: tuple, accuracy:float = 10**(-6), max_steps: int=500):
     tao = 1
     v = 10
+    for eq in restrictions:
+        eq = eq[:eq.index('>')].replace(' ', '')
+        
     phi = f'{tao}*({func})'
     for exp in restrictions:
         phi += f' - log({exp})'
