@@ -45,10 +45,9 @@ def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), ac
     
     res_new = sympify(func).subs(list(zip(symbs, next_point)))
     if type(res_new) == NaN:
-        return res
+        return start_point
         
     steps = 1
-    return res_new
     while abs(res_new - res) > accuracy and max_steps > steps:
         
         phi = f'{tao}*({func})'
