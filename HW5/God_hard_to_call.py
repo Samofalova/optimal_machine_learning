@@ -33,7 +33,7 @@ def eq_dual_newton(func: str, equality: list, x0: tuple, tol=5):
     except SympifyError:
         print('Неверно заданы функции')
     func_c = lambda x: func.subs(dict(zip(func.free_symbols, x)))
-    eq_func = lambda x: [us.subs(dict(zip(us.free_symbols, x))) for us in uslovie]
+    eq_func = lambda x: [us.subs(dict(zip(us.free_symbols, x))) for us in equality]
     eq_constraints = {'type': 'eq',
                       'fun': eq_func}
     res = minimize(func_c, x0, method='SLSQP', constraints=eq_constraints)
