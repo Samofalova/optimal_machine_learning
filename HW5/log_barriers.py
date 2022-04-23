@@ -1,14 +1,15 @@
+import numpy as np
 from sympy import *
 from sympy.core.numbers import NaN
-import numpy as np
+from .first_phase import first_phase
 
-def log_barriers(func: str, restrictions: list, start_point: tuple, accuracy:float = 10**(-6), max_steps: int=500):
+
+def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), accuracy:float = 10**(-6), max_steps: int=500):
     tao = 1
     v = 10
     for i in range(len(restrictions)):
         restrictions[i] = restrictions[i][:restrictions[i].index('>')].replace(' ', '')
         
-    #return restrictions
     phi = f'{tao}*({func})'
     for exp in restrictions:
         phi += f' - log({exp})'
@@ -20,6 +21,14 @@ def log_barriers(func: str, restrictions: list, start_point: tuple, accuracy:flo
     except:
         return 'Введена первоначальная точка, которая не удовлетворяет неравенствам'
     Y = Matrix(list(symbs))
+
+    if len(start_point) == 0:
+        start_point = first_phase(restrictions, symbs)
+
+    if start_point == 'Введенные ограничения не могут использоваться вместе':
+        return start_point
+    elif start_point == 'Невозможно подобрать внутреннюю точку для данного метода':
+        return start_point
     
     df = X.jacobian(Y).T
     ddf = df.jacobian(Y)
