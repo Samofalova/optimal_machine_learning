@@ -10,7 +10,7 @@ def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), ac
     v = 10
     for i in range(len(restrictions)):
         restrictions[i] = restrictions[i][:restrictions[i].index('>')].replace(' ', '')
-        
+
     phi = f'{tao}*({func})'
     for exp in restrictions:
         phi += f' - log({exp})'
@@ -45,11 +45,10 @@ def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), ac
     
     res_new = sympify(func).subs(list(zip(symbs, next_point)))
     if type(res_new) == NaN:
-        return start_point
+        return start_point, dataset
         
     steps = 1
     while abs(res_new - res) > accuracy and max_steps > steps:
-        
         phi = f'{tao}*({func})'
         for exp in restrictions:
             phi += f' - log({exp})'
@@ -68,12 +67,14 @@ def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), ac
         xk = ddfx0.inv() @ dfx0
         old_point = deepcopy(next_point)
         next_point = [next_point[i]-xk[i] for i in range(len(next_point))]
+        res = deepcopy(res_new)
         res_new = sympify(func).subs(list(zip(symbs, next_point)))
         if type(res_new) == NaN:
             return old_point
 
         tao = tao*v
         steps += 1
+        
 
     return next_point
 
