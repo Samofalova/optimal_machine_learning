@@ -181,7 +181,7 @@ def terrifying(func, x0, us, a, b, tol=10**-5):
         Function for optimisation.
     x0 : list
         Starting point.
-    us : tuple
+    us : list
         A list of constraints set by strings. 
         Be sure to write as '4*x - 4 = 0' or '4*x - 4 < 0'
     a : list
