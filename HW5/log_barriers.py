@@ -32,7 +32,10 @@ def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), ac
     tao = 1
     v = 10
     for i in range(len(restrictions)):
-        restrictions[i] = restrictions[i][:restrictions[i].index('>')].replace(' ', '')
+        if '>' in restrictions[i]:
+            restrictions[i] = restrictions[i][:restrictions[i].index('>')].replace(' ', '')
+        else:
+            restrictions[i] = restrictions[i][:restrictions[i].index('<')].replace(' ', '')
 
     phi = f'{tao}*({func})'
     for exp in restrictions:
