@@ -112,7 +112,7 @@ def get_right_pain(F0, Y, Fi, lmbd, A, mu, diag_lam, e, Axb):
 
 def search_point(x0, lmbd, mu, var,
                  left_pain, right_pain, 
-                 n, m, p, Fi, func, tol):
+                 n, m, p, Fi, func, tol, A):
     """
     Searches for a point for the specified conditions.
     """
@@ -233,7 +233,7 @@ def terrifying(func, x0, us, a, b, tol=10**-5):
 
         point, y = search_point(x0, lmbd, mu, var,
                                 left_pain, right_pain, 
-                                n, m, p, Fi, func, tol)
+                                n, m, p, Fi, func, tol, A)
         return point, y
     except:
         str1 = 'Мы сделали все возможное, чтобы решить эту задачу. '
