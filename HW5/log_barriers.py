@@ -8,7 +8,7 @@ from copy import deepcopy
 def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), accuracy:float = 10**(-6), max_steps: int=500):
     '''
     Solving an optimisation problem for a function with equality-type
-    constraints by Newton's method (a way of solving the dual problem).
+    constraints by log barriers method (a way of solving the dual problem).
     Returns the found point and the value of the function in it.
     Parameters
     ----------
