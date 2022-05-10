@@ -69,7 +69,7 @@ def own_logistic_regression(X_train, y_train, X_test,
 
 def draw_rdf(X, y, clf):
     colors = ['#' + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-              for col in range(len(np.unique(y_hat)))]
+              for col in range(len(np.unique(y)))]
     for clss in np.unique(y):
         plt.scatter(X[y == clss, 0], X[y == clss, 1], 
                     c=colors[clss], label=clss)
