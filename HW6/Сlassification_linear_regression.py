@@ -45,7 +45,7 @@ def Сlassification_linear_regression_l1(x_train: np.array, y_train: np.array, x
         # create scatter plot for samples from each class
         for class_value in range(2):
             # get row indexes for samples with this class
-            row_ix = where(y_pred == class_value)
+            row_ix = np.where(y_pred == class_value)
             # create scatter of these samples
             pyplot.scatter(x_poly_test[row_ix, 0], x_poly_test[row_ix, 1])
         # show the plot
