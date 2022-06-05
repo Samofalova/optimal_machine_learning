@@ -4,6 +4,14 @@ from scipy.optimize import linprog
 from copy import deepcopy
 
 def branche_boundaries(F: str, constraint: list):
+    '''
+    inputs:
+        F: function as a string (example: '2*x1 + 6*x2')
+        constraint: restrictions in the form of a list of strings (example: ['x1 - x2 <= 4', '-3*x1 <= 17'])
+    outputs:
+        tuple: (point, result of function);
+        example: (array([1., 5.]), 4.00000000000000)
+    '''
     
     exp = sympify(F)
     
