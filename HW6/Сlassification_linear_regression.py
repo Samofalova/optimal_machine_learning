@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 
 def Сlassification_linear_regression_l1(x_train: np.array, y_train: np.array, x_test: np.array,
         penalty=None, C=1, l1_ratio=None, draw=False, degree=1):
@@ -53,3 +54,34 @@ def Сlassification_linear_regression_l1(x_train: np.array, y_train: np.array, x
     
     return res
   
+def svm(x_train, y_train, x_test, 
+        C=1, penalty=None, graph=False):
+    
+    assert C >0, "Сила регуляризации должна быть больше 0!"
+    assert len(np.unique(y_train)) > 1, 'В y_train должно быть больше одного класса!'
+    
+    if x_train.shape[0] < 2**x_train.shape[1]:
+        print('Для оптимального результата количество наблюдений должно быть больше 2^k.')
+        IsContinue = int(input('Все равно продолжить? (0/1): '))
+        if not IsContinue:
+            return
+        
+    if penalty not in ['l1', 'l2']:
+        penalty = 'l2'
+    
+    model = LinearSVC(max_iter=50_000, penalty=penalty, C=C, dual=False)
+    model.fit(x_train, y_train)
+    y_pred = model.predict(x_test)
+    
+    res = {'x_test': x_test,
+           'y_pred': y_pred,
+           'intercept': model.intercept_,
+           'coef': model.coef_}
+    
+    if x_test.shape[1] == 2 and graph:
+        for class_value in range(2):
+            row_ix = np.where(y_pred == class_value)
+            pyplot.scatter(x_test[row_ix, 0], x_test[row_ix, 1])
+        pyplot.show()
+    
+    return res
