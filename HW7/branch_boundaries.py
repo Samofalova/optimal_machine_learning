@@ -24,7 +24,6 @@ def branche_boundaries(F: str, constraint: list):
     dic_constr = {i: [] for i in range(1, count_constraint+1)}
     for i in range(len(constraint)):
         ineq = sympify(constraint[i])
-        print(ineq)
         ex = ineq.args[0]
         dic_constr[i+1] = [float(ex.coeff(symb)) for symb in symbs]
 
@@ -81,7 +80,6 @@ def ZLP1(func, constraint, res_last, symbs, A, b, c):
     b_new = deepcopy(b)
     A_new.append(lst)
     b_new.append(whole)
-    #return c, A_new, b_new
 
     res = linprog(c, A_ub=A_new, b_ub=b_new, method='simplex')['x']
     
