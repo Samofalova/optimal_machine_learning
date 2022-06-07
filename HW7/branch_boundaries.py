@@ -58,7 +58,7 @@ def branche_boundaries(F: str, constraint: list):
         res_zlp2 = None
     
     if res_zlp1 is not None and res_zlp2 is not None:
-        if exp.subs(list(zip(symbs, res_zlp1))) >= exp.subs(list(zip(symbs, res_zlp2))):
+        if exp.subs(list(zip(symbs, res_zlp1))) <= exp.subs(list(zip(symbs, res_zlp2))):
             return res_zlp1, exp.subs(list(zip(symbs, res_zlp1)))
         else:
             return res_zlp2, exp.subs(list(zip(symbs, res_zlp2)))
