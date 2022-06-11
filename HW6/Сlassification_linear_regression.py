@@ -4,7 +4,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
-def Сlassification_linear_regression_l1(x_train: np.array, y_train: np.array, x_test: np.array,
+def logistic_regression_with_l1(x_train: np.array, y_train: np.array, x_test: np.array,
         penalty=None, C=1, l1_ratio=None, draw=False, degree=1):
     
     # проверка параметров
@@ -54,7 +54,7 @@ def Сlassification_linear_regression_l1(x_train: np.array, y_train: np.array, x
     
     return res
   
-def svm(x_train, y_train, x_test, 
+def own_svm(x_train, y_train, x_test, 
         C=1, penalty=None, graph=False):
     
     assert C >0, "Сила регуляризации должна быть больше 0!"
