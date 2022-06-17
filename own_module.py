@@ -2125,7 +2125,16 @@ def gradE(F, symbs, point):
 
 
 def simulated_annealing(F: str, constraints: list, start_points: list, steps=1000):
-
+    '''
+    inputs:
+        F: function as a string (example: '2*x1 + 6*x2')
+        constraints: restrictions in the form of a list of strings (example: ['x1 - x2 <= 4', '-3*x1 <= 17'])
+        start_points: start point (example: [0, 0])
+        steps: count steps of loop
+    outputs:
+        tuple: point;
+        example: [1, 1]
+    '''
     exp = sympify(F)
     symbs = sorted(list(exp.free_symbols), key=lambda x: str(x))
 
