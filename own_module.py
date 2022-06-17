@@ -39,24 +39,24 @@ def get_data():
     return data with variables and math function
     """
     data = dict()
-    text = 'Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ… (x y): '
+    text = 'Введите названия переменных (x y): '
     data['X'] = symbols(input(text).split())
-    assert len(data['X']) == 2, 'Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ðµ Ð·Ð°Ð´Ð°Ð½Ñ‹ Ð½ÐµÐ²ÐµÑ€Ð½Ð¾'
+    assert len(data['X']) == 2, 'переменные заданы неверно'
 
-    f = input('Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÑŽ (y*x+2): ')
+    f = input('Введите функцию (y*x+2): ')
     data['func'] = Matrix([f])
 
-    data['limit'] = int(input('Ð•ÑÑ‚ÑŒ Ð»Ð¸ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ? (1 â€“ Ð´Ð°, 0 â€“ Ð½ÐµÑ‚): '))
+    data['limit'] = int(input('Есть ли ограничения? (1 – да, 0 – нет): '))
     if data['limit']:
-        str_x = 'Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ð´Ð»Ñ x [-10, 10]: '
-        str_y = 'Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ð´Ð»Ñ y [-10, 10]: '
+        str_x = 'Введите ограничения для x [-10, 10]: '
+        str_y = 'Введите ограничения для y [-10, 10]: '
         try:
             data['x_min'], data['x_max'] = eval(input(str_x))
             data['y_min'], data['y_max'] = eval(input(str_y))
         except ValueError:
-            raise Exception('Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ð·Ð°Ð´Ð°Ð½Ñ‹ Ð½ÐµÐ²ÐµÑ€Ð½Ð¾')
-        range_x = 'Ð³Ñ€Ð°Ð½Ð¸Ñ†Ñ‹ Ð´Ð»Ñ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ x Ð¿ÐµÑ€ÐµÐ¿ÑƒÑ‚Ð°Ð½Ñ‹'
-        range_y = 'Ð³Ñ€Ð°Ð½Ð¸Ñ†Ñ‹ Ð´Ð»Ñ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ y Ð¿ÐµÑ€ÐµÐ¿ÑƒÑ‚Ð°Ð½Ñ‹'
+            raise Exception('ограничения заданы неверно')
+        range_x = 'границы для ограничения x перепутаны'
+        range_y = 'границы для ограничения y перепутаны'
         assert data['x_min'] < data['x_max'], range_x
         assert data['y_min'] < data['y_max'], range_y
 
@@ -75,8 +75,8 @@ def get_crit(func: Matrix, X: list):
 
 def filter_point(point: list, x_min, x_max, y_min, y_max):
     """
-    point: [(1, 2), (2, 3)] â€“ list of tuples, critical points for filtering
-    x_min, x_max, y_min, y_max â€“ int or float, constraints for variables
+    point: [(1, 2), (2, 3)] – list of tuples, critical points for filtering
+    x_min, x_max, y_min, y_max – int or float, constraints for variables
     """
     x, y = point.values()
     if simplify(x).is_real and simplify(y).is_real:
@@ -89,7 +89,7 @@ def type_point(func, X, x0):
     """
     func: sympy.Matrix(['x + y']),
     X: [sympy.Symbol('x'), sympy.Symbol('y')],
-    x0: (1, 2) â€“ tuple of int or float numbers, critical point
+    x0: (1, 2) – tuple of int or float numbers, critical point
     return type of critical points
     """
     hessianf = simplify(hessian(func, X))
@@ -108,18 +108,18 @@ def get_extremums():
     returns a tuple from the source data and the results of the function.
     data: dict - dictionary of source data, stores the name of variables,
     function, constraints.
-    points: list â€“ a list of tuples, each element stores a point,
+    points: list – a list of tuples, each element stores a point,
     the value of the function at the point and the type of extremum.
     """
     data = get_data()
     crit = get_crit(data['func'], data['X'])
     if data['limit']:
-        print('Ð•ÑÐ»Ð¸ Ð² ÑÐ¿Ð¸ÑÐºÐµ ÐºÑ€Ð¸Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ñ… Ñ‚Ð¾Ñ‡ÐµÐº ÐµÑÑ‚ÑŒ ÐºÐ¾Ð¼Ð¿Ð»ÐµÐºÑÐ½Ñ‹Ðµ Ñ‡Ð¸ÑÐ»Ð°, Ð¼Ñ‹ Ð¸Ñ… Ð½Ðµ Ð²Ñ‹Ð²Ð¾Ð´Ð¸Ð¼.')
+        print('Если в списке критических точек есть комплексные числа, мы их не выводим.')
         f = partial(filter_point, x_min=data['x_min'], x_max=data['x_max'], 
                                   y_min=data['y_min'], y_max=data['y_max'])
         crit = list(filter(f, crit))
     if len(crit) > 40:
-        n = int(input('Ð¢Ð¾Ñ‡ÐµÐº Ð±Ð¾Ð»ÑŒÑˆÐµ 40, ÑÐºÐ¾Ð»ÑŒÐºÐ¾ Ð²Ñ‹Ð²ÐµÑÑ‚Ð¸? '))
+        n = int(input('Точек больше 40, сколько вывести? '))
         crit = crit[:n]
     points = []
     for x in crit:
@@ -134,7 +134,7 @@ def get_extremums():
                 continue 
         else:
             points.append((x, 'crit point'))
-        
+
     return data, points
 
 
@@ -163,7 +163,7 @@ def main():
     try:
         data, points = get_extremums()
     except NotImplementedError: 
-        return 'Ð”Ð»Ñ Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð²Ñ‹Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ Ð½ÐµÑ‚ Ð°Ð½Ð°Ð»Ð¸Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¾Ð³Ð¾ Ñ€ÐµÑˆÐµÐ½Ð¸Ñ'
+        return 'Для данного выражения нет аналитического решения'
     print(*points, sep='\n')
     show_chart(data, points)
 
@@ -182,7 +182,7 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10 ** (-5),
     func : str
         Objective function to minimize or maximize.
     search_area : tuple or list
-        [a, b], where (a<b) â€“ the interval within which the maximum
+        [a, b], where (a<b) – the interval within which the maximum
         and minimum are searched.
     accuracy : float, optional
         x tolerance stop criterion.
@@ -199,7 +199,7 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10 ** (-5),
     >>> print(minimum['point'])
     1.0000048224378428
     """
-    str_error = 'Ð”Ð»Ð¸Ð½Ð° Ð¾Ñ‚Ñ€ÐµÐ·ÐºÐ° Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð·Ð°Ð´Ð°Ð½Ð½Ð¾Ð¹ Ñ‚Ð¾Ñ‡Ð½Ð¾ÑÑ‚Ð¸'
+    str_error = 'Длина отрезка должна быть больше заданной точности'
     assert search_area[1] - search_area[0] > accuracy, str_error
     res = {'point': None, 'value_func': None, 'report': None,
            'interim_results_dataset': None}
@@ -208,7 +208,7 @@ def golden_ratio(func, search_area, extreme_type='min', accuracy=10 ** (-5),
     try:
         func = eval(func)
     except NameError:
-        print('Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð·Ð°Ð´Ð°Ð½Ð° Ñ‡ÐµÑ€ÐµÐ· x')
+        print('Функция должна быть задана через x')
         return None
     proportion = 1.6180339887
     a, b = search_area
@@ -282,7 +282,6 @@ def parabola_method(func: str,
                     figure=True):
     """
     Search for the extremum of a function of one variable using the parabola method.
-
     args:
         mandatory:
             - func - function in analytical form;
@@ -292,7 +291,6 @@ def parabola_method(func: str,
             - max_iterations - maximum number of iterations (default: 500;
             - intermediate_results - flag "output intermediate results" (default: False);
             - intermediate_writing - flag "writing intermediate results to dataset" (default: False);
-
     outputs:
         - The found value of the extremum point coordinate;
         - Function value at the extremum point;
@@ -334,7 +332,7 @@ def parabola_method(func: str,
                     fig, axe = get_sympy_subplots(p)
                     axe.plot(x_res, f_res, "o", c='red')
                     fig.show()
-                return x_res, f_res, 'Ð—Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ñ Ð·Ð°Ð´Ð°Ð½Ð½Ð¾Ð¹ Ñ‚Ð¾Ñ‡Ð½Ð¾ÑÑ‚ÑŒÑŽ', d
+                return x_res, f_res, 'Значение с заданной точностью', d
 
             # first step
             if iteration_num == 0:
@@ -398,9 +396,9 @@ def parabola_method(func: str,
             axe.plot(x_res, f_res, "o", c='red')
             fig.show()
 
-        return x_res, f_res, 'Ð”Ð¾ÑÑ‚Ð¸Ð³Ð½ÑƒÑ‚Ð¾ Ð¼Ð°ÐºÑÐ¸Ð¼Ð°Ð»ÑŒÐ½Ð¾Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¸Ñ‚ÐµÑ€Ð°Ñ†Ð¸Ð¹'
+        return x_res, f_res, 'Достигнуто максимальное количество итераций'
     except:
-        return 'Ð’Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¾ Ñ Ð¾ÑˆÐ¸Ð±ÐºÐ¾Ð¹'
+        return 'Выполнено с ошибкой'
 
 
 def BrantMethod(func: str,
@@ -430,7 +428,7 @@ def BrantMethod(func: str,
             if intermediate_writing:
                 print(result)
 
-            return x, func(x), 'Ð”Ð¾ÑÑ‚Ð¸Ð³Ð½ÑƒÑ‚Ð¾ Ð¼Ð°ÐºÐ¸ÑÐ¼Ð°Ð»ÑŒÐ½Ð¾Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¸Ñ‚ÐµÑ€Ð°Ñ†Ð¸Ð¹'
+            return x, func(x), 'Достигнуто макисмальное количество итераций'
 
         g = d_prv / 2
         d_prv = d_cur
@@ -473,14 +471,13 @@ def BrantMethod(func: str,
     if intermediate_writing:
         print(result)
 
-    return x, func(x), 'Ð”Ð¾ÑÑ‚Ð¸Ð³Ð½ÑƒÑ‚Ð° Ð·Ð°Ð´Ð°Ð½Ð½Ð°Ñ Ñ‚Ð¾Ñ‡Ð½Ð¾ÑÑ‚ÑŒ'
+    return x, func(x), 'Достигнута заданная точность'
 
 
 def bfgs(func, diff_func, x0, extreme_type='min', accuracy=10 ** -5, maxarg=100,
           firstW=10 ** -4, secondW=0.1, maxiter=500, interim_results=False,
           dataset_rec=False):
     '''
-
     '''
     if extreme_type == 'max':
         f = lambda x: -func(x)
@@ -512,11 +509,11 @@ def bfgs(func, diff_func, x0, extreme_type='min', accuracy=10 ** -5, maxarg=100,
             if line_search[0]:
                 alpha_k = line_search[0]
             else:
-                print('Ð½Ðµ ÑÐ¼Ð¾Ð³Ð»Ð¸ Ð½Ð°Ð¹Ñ‚Ð¸ Ð»ÑƒÑ‡ÑˆÐµÐµ Ð¿Ñ€Ð¸Ð±Ð»Ð¸Ð¶ÐµÐ½Ð¸Ðµ')
+                print('не смогли найти лучшее приближение')
                 res['report'] = 4
                 break
         except optimize.linesearch.LineSearchWarning:
-            print('Ð½Ðµ ÑÐ¼Ð¾Ð³Ð»Ð¸ Ð½Ð°Ð¹Ñ‚Ð¸ Ð»ÑƒÑ‡ÑˆÐµÐµ Ð¿Ñ€Ð¸Ð±Ð»Ð¸Ð¶ÐµÐ½Ð¸Ðµ')
+            print('не смогли найти лучшее приближение')
             res['report'] = 4
             break
         xkp = xk + alpha_k * pk
@@ -535,7 +532,7 @@ def bfgs(func, diff_func, x0, extreme_type='min', accuracy=10 ** -5, maxarg=100,
         A1 = 1 - rho * sk * yk
         A2 = 1 - rho * yk * sk
         Hk = A1 * Hk * A2 + (rho * sk ** 2)
-    #         Hk *= (1 - 2*rho*yk)**2  # Ð²Ñ‹Ð²ÐµÐ´ÐµÐ½Ð½Ð°Ñ Ñ„Ð¾Ñ€Ð¼ÑƒÐ»Ð° c Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒÑŽ Ð¼Ð°Ñ‚Ñ€Ð¸Ñ‡Ð½Ñ‹Ñ… Ð²Ñ‹Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ð¹
+    #         Hk *= (1 - 2*rho*yk)**2  # выведенная формула c помощью матричных вычислений
     #         Hk *= np.sqrt((1 - 2*rho*yk)**2)
 
     res['point'] = xk
@@ -821,15 +818,15 @@ def newton_algorithm(func, func_diff, func_diff_2x, func_diff_xy,
     first_diff = func_diff(*ones).reshape((shape_arg, 1))
     second_diff_2x = func_diff_2x(*ones).reshape((shape_arg, 1))
     second_diff_xy = func_diff_xy(*ones).reshape((shape_arg, 1))
-    
+
     x_old = np.ones((shape_arg, 1))
     d2_f = np.zeros((shape_arg,) * 2)
     for i in range(shape_arg):
         d2_f[i][i] = second_diff_2x[i]
         d2_f[i][i-1] = second_diff_xy[i]
-        
+
     d2_f_inv = np.linalg.inv(d2_f)
-    
+
     steps = 0
     crit_stop = deepcopy(accuracy)
     while steps < max_steps and crit_stop <= accuracy:
@@ -838,7 +835,7 @@ def newton_algorithm(func, func_diff, func_diff_2x, func_diff_xy,
         print(crit_stop)
         x_old = deepcopy(x_new)
         steps += 1
-        
+
     return x_new, func(*list(x_new.reshape(1, x_new.size)[0]))
 
 
@@ -847,8 +844,8 @@ class InsufficientData(Exception):
     Rises when there is not enough data to build a model.
     """
     def __str__(self):
-        string_exp = 'Ð”Ð°Ð½Ð½Ñ‹Ñ… Ð½ÐµÐ´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ð¾. Ð˜Ñ… Ð´Ð¾Ð»Ð¶Ð½Ð¾ Ð±Ñ‹Ñ‚ÑŒ Ð½Ðµ Ð¼ÐµÐ½ÐµÐµ 2^k ÑÑ‚Ñ€Ð¾Ðº, \
-Ð³Ð´Ðµ k â€“ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ¾Ð². Ð•ÑÐ»Ð¸ Ð¿Ñ€Ð¸Ð·Ð½Ð°Ðº 1, Ñ‚Ð¾ Ñ…Ð¾Ñ‚Ñ Ð±Ñ‹ 10 ÑÑ‚Ñ€Ð¾Ðº.'
+        string_exp = 'Данных недостаточно. Их должно быть не менее 2^k строк, \
+где k – количество признаков. Если признак 1, то хотя бы 10 строк.'
         return string_exp
 
 
@@ -858,7 +855,7 @@ class LinearlyDependent(Exception):
     to apply the method of least squares.
     """
     def __str__(self):
-        return 'ÐŸÑ€Ð¸ÑÑƒÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‚ Ð»Ð¸Ð½ÐµÐ¹Ð½Ð¾ Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ñ‹Ðµ Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ¸. ÐœÑ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¿Ñ€Ð¸Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ ÐœÐÐš.'
+        return 'Присутствуют линейно зависимые признаки. Мы не можем применить МНК.'
 
 
 class DegreeError(Exception):
@@ -866,7 +863,7 @@ class DegreeError(Exception):
     Rises when an incorrect degree is entered to construct a polynomial regression.
     """
     def __str__(self):
-        return 'Ð¡Ñ‚ÐµÐ¿ÐµÐ½ÑŒ Ð¿Ð¾Ð»Ð¸Ð½Ð¾Ð¼Ð° Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ñ†ÐµÐ»Ñ‹Ð¼ Ð½ÐµÐ¾Ñ‚Ñ€Ð¸Ñ†Ð°Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¼ Ñ‡Ð¸ÑÐ»Ð¾Ð¼.'
+        return 'Степень полинома должна быть целым неотрицательным числом.'
 
 
 class NegativeValue(Exception):
@@ -874,7 +871,7 @@ class NegativeValue(Exception):
     Rises when negative values of y have been fed to the input for the exponential regression. 
     """
     def __str__(self):
-        return 'Ð—Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ y Ð´Ð¾Ð»Ð¶Ð½Ñ‹ Ð±Ñ‹Ñ‚ÑŒ Ð¿Ð¾Ð»Ð¾Ð¶Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¼Ð¸'
+        return 'Значения y должны быть положительными'
 
 
 class VeryBig(Exception):
@@ -883,7 +880,7 @@ class VeryBig(Exception):
     are impossible. 
     """
     def __str__(self):
-        return 'Ð¡Ð²Ð¾Ð±Ð¾Ð´Ð½Ñ‹Ð¹ Ñ‡Ð»ÐµÐ½ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ð»ÑÑ ÑÐ»Ð¸ÑˆÐºÐ¾Ð¼ Ð±Ð¾Ð»ÑŒÑˆÐ¸Ð¼, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ñ€Ð¾Ð¸Ð·Ð²ÐµÑÑ‚Ð¸ Ð²Ñ‹Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ'
+        return 'Свободный член получился слишком большим, чтобы произвести вычисления'
 
 
 class RegularizationError(Exception):
@@ -891,9 +888,9 @@ class RegularizationError(Exception):
     It raises when one tries to apply regularization to polynomial regression. 
     """
     def __str__(self):
-        return 'Ðš ÑÐ¾Ð¶Ð°Ð»ÐµÐ½Ð¸ÑŽ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¿Ð¾ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ Ð¿Ð¾Ð»Ð¸Ð½Ð¾Ð¼Ð¸Ð°Ð»ÑŒÐ½ÑƒÑŽ Ñ€ÐµÐ³Ñ€ÐµÑÑÐ¸ÑŽ Ñ Ñ€ÐµÐ³ÑƒÐ»ÑÐ·Ð°Ñ†Ð¸ÐµÐ¹'
+        return 'К сожалению, мы не можем построить полиномиальную регрессию с регулязацией'
 
-    
+
 def student_del(X, y):
     """
     Excludes points from the data according to Student's regularization.
@@ -946,7 +943,7 @@ def plot_3d_regression(X, y, coef, a0, reg_type):
     ax.set_xlabel("X0")
     ax.set_ylabel("X1")
     ax.set_zlabel("y")
-    
+
     if reg_type=='lin':
         ax.scatter(X.iloc[:, 0], X.iloc[:, 1], y, marker='.', color='red') 
 
@@ -1001,8 +998,8 @@ def plot_2d_regression(X, y, coef, a0, reg_type):
         zs = a0 + xs*coef
     else:
         zs = a0 * np.exp(coef*xs)
-    plt.plot(xs, zs, color="blue", linewidth=3, label='ÐŸÑ€Ð¾Ð³Ð½Ð¾Ð·')
-    plt.scatter(X, y, marker='.', color='red', label='Ð˜ÑÑ…Ð¾Ð´Ð½Ñ‹Ðµ') 
+    plt.plot(xs, zs, color="blue", linewidth=3, label='Прогноз')
+    plt.scatter(X, y, marker='.', color='red', label='Исходные') 
     plt.legend()
     plt.show()
 
@@ -1046,7 +1043,7 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
     check_data(X)
     if len(X.shape) < 2:
         X = X.to_numpy().reshape(-1, 1)
-            
+
     if regularization is None:
         if X.shape[1] >= 2 and np.linalg.det(X.T@X) == 0:
             raise LinearlyDependent
@@ -1083,7 +1080,7 @@ def exp_regression(X, y, tol=5, regularization=None, alpha=1.0, draw=False):
         bias = bias
         func = f'{round(bias, tol)}' + f' * exp({round(weights, tol)}*x0)'
     if draw == True and X.shape[1] > 2:
-        print('Ðš ÑÐ¾Ð¶Ð°Ð»ÐµÐ½Ð¸ÑŽ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¿Ð¾ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ Ð³Ñ€Ð°Ñ„Ð¸Ðº, Ñ‚Ð°Ðº ÐºÐ°Ðº Ñ€Ð°Ð·Ð¼ÐµÑ€Ð½Ð¾ÑÑ‚ÑŒ Ð¿Ñ€Ð¾ÑÑ‚Ñ€Ð°Ð½ÑÑ‚Ð²Ð° Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ¾Ð² Ð²ÐµÐ»Ð¸ÐºÐ°.')
+        print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
     elif draw == True and X.shape[1] == 2:
         plot_3d_regression(X, y, weights, bias, reg_type='exp')
     elif draw == True and X.shape[1] == 1:
@@ -1126,10 +1123,10 @@ def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=Fa
      'weights': -2.805183057424643e-08,
      'bias': 143.49689552425573}
     """
-    
+
     if degree <= 0 or type(degree)!=int: 
         raise DegreeError
-        
+
     check_data(X)
     if len(X.shape) < 2:
         X = X.to_numpy().reshape(-1, 1)
@@ -1137,21 +1134,21 @@ def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=Fa
     X_poly = poly.fit_transform(X)
     if regularization is not None and degree>1:
         raise RegularizationError
-    
+
     if X.shape[1] >= 2 and np.linalg.det(X.T@X) == 0:
         raise LinearlyDependent
     reg = LinearRegression().fit(X_poly, y)
 
-    
+
     if regularization == 'Student':
         weights, bias = reg.coef_[0], reg.intercept_[0]
     else:
         weights, bias = reg.coef_, reg.intercept_    
 
     X_poly = pd.DataFrame(X_poly)
-    
+
     weights = weights[1:]
-    
+
     if X.shape[1]==1 and degree==1 : 
         weights = weights[0] 
         func = f'{round(bias, tol)} + {round(weights, tol)}*x1'
@@ -1164,8 +1161,8 @@ def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=Fa
         for i in range(len(weights)):
             func = func + f' + {round(weights[i], tol)}*x{i+1}'
     else: 
-        func = 'Ðš ÑÐ¾Ð¶Ð°Ð»ÐµÐ½Ð¸ÑŽ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð²Ñ‹Ð²ÐµÑÑ‚Ð¸ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÑŽ Ð´Ð»Ñ Ð¼Ð½Ð¾Ð¶ÐµÑÑ‚Ð²ÐµÐ½Ð½Ð¾Ð¹ Ð¿Ð¾Ð»Ð¸Ð½Ð¾Ð¼Ð¸Ð°Ð»ÑŒÐ½Ð¾Ð¹ Ñ€ÐµÐ³Ñ€ÐµÑÑÐ¸Ð¸'
-    
+        func = 'К сожалению, мы не можем вывести функцию для множественной полиномиальной регрессии'
+
     if draw == True and X.shape[1] == 1 and degree==1: 
         plot_2d_regression(X, y, weights, bias, reg_type='lin')
     elif draw==True and (X.shape[1]==2 and degree==1):    
@@ -1173,8 +1170,8 @@ def poly_regression(X, y, degree, tol=5, regularization=None, alpha=1.0, draw=Fa
     elif draw==True and (X.shape[1]==1 and degree==2):
         plot_3d_regression(X_poly, y, weights, bias, reg_type='poly2')
     else:
-        print('Ðš ÑÐ¾Ð¶Ð°Ð»ÐµÐ½Ð¸ÑŽ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¿Ð¾ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ Ð³Ñ€Ð°Ñ„Ð¸Ðº, Ñ‚Ð°Ðº ÐºÐ°Ðº Ñ€Ð°Ð·Ð¼ÐµÑ€Ð½Ð¾ÑÑ‚ÑŒ Ð¿Ñ€Ð¾ÑÑ‚Ñ€Ð°Ð½ÑÑ‚Ð²Ð° Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ¾Ð² Ð²ÐµÐ»Ð¸ÐºÐ°.')
-        
+        print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
+
     return {'func': func, 
             'weights': weights, 
             'bias': bias}
@@ -1245,7 +1242,7 @@ def lin_regression(X, y, tol = 5, regularization = None, alpha=1.0, draw = False
         else:
             func += '+ ' + str(round(weights[i], tol)) + 'x' + str(i + 1) + ' '
     if draw == True and X.shape[1] > 2:
-        print('Ðš ÑÐ¾Ð¶Ð°Ð»ÐµÐ½Ð¸ÑŽ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¿Ð¾ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ Ð³Ñ€Ð°Ñ„Ð¸Ðº, Ñ‚Ð°Ðº ÐºÐ°Ðº Ñ€Ð°Ð·Ð¼ÐµÑ€Ð½Ð¾ÑÑ‚ÑŒ Ð¿Ñ€Ð¾ÑÑ‚Ñ€Ð°Ð½ÑÑ‚Ð²Ð° Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ¾Ð² Ð²ÐµÐ»Ð¸ÐºÐ°.')
+        print('К сожалению, мы не можем построить график, так как размерность пространства признаков велика.')
     elif draw == True and X.shape[1] == 2:
         plot_3d_regression(X, y, weights, bias, reg_type='lin')
     elif draw == True and X.shape[1] == 1:
@@ -1290,45 +1287,45 @@ def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), ac
     phi = f'{tao}*({func})'
     for exp in restrictions:
         phi += f' - log({exp})'
-        
+
     X = Matrix([sympify(phi)])
     symbs = list(sympify(phi).free_symbols)
 
     if len(start_point) == 0:
         start_point = first_phase(restrictions, symbs)
-    if start_point == 'Ð’Ð²ÐµÐ´ÐµÐ½Ð½Ñ‹Ðµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ð½Ðµ Ð¼Ð¾Ð³ÑƒÑ‚ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒÑÑ Ð²Ð¼ÐµÑÑ‚Ðµ':
+    if start_point == 'Введенные ограничения не могут использоваться вместе':
         return start_point
-    elif start_point == 'ÐÐµÐ²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð¿Ð¾Ð´Ð¾Ð±Ñ€Ð°Ñ‚ÑŒ Ð²Ð½ÑƒÑ‚Ñ€ÐµÐ½Ð½ÑŽÑŽ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð´Ð»Ñ Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð¼ÐµÑ‚Ð¾Ð´Ð°':
+    elif start_point == 'Невозможно подобрать внутреннюю точку для данного метода':
         return start_point
 
     try:
         res = sympify(func).subs(list(zip(symbs, start_point)))
     except:
-        return 'Ð’Ð²ÐµÐ´ÐµÐ½Ð° Ð¿ÐµÑ€Ð²Ð¾Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½Ð°Ñ Ñ‚Ð¾Ñ‡ÐºÐ°, ÐºÐ¾Ñ‚Ð¾Ñ€Ð°Ñ Ð½Ðµ ÑƒÐ´Ð¾Ð²Ð»ÐµÑ‚Ð²Ð¾Ñ€ÑÐµÑ‚ Ð½ÐµÑ€Ð°Ð²ÐµÐ½ÑÑ‚Ð²Ð°Ð¼'
+        return 'Введена первоначальная точка, которая не удовлетворяет неравенствам'
     Y = Matrix(list(symbs))
-    
+
     df = X.jacobian(Y).T
     ddf = df.jacobian(Y)
-    
+
     lst_for_subs =  list(zip(symbs, start_point))
     dfx0 = df.subs(lst_for_subs)
     ddfx0 = ddf.subs(lst_for_subs)
-    
+
     xk = ddfx0.inv() @ dfx0
     next_point = [start_point[i]-xk[i] for i in range(len(start_point))]
     tao = tao*v
-    
-    
+
+
     res_new = sympify(func).subs(list(zip(symbs, next_point)))
     if type(res_new) == NaN:
         return np.array(start_point), res
-        
+
     steps = 1
     while abs(res_new - res) > accuracy and max_steps > steps:
         phi = f'{tao}*({func})'
         for exp in restrictions:
             phi += f' - log({exp})'
-        
+
         X = Matrix([sympify(phi)])
         symbs = list(sympify(phi).free_symbols)
         Y = Matrix(list(symbs))
@@ -1355,7 +1352,7 @@ def log_barriers(func: str, restrictions: list, start_point: tuple = tuple(), ac
 
 
 def first_phase(restrictions: list, symbs: list) -> tuple:
-    
+
     s = 1000
     restrictions_sympy = [sympify(i) for i in restrictions]
     res_functions = []
@@ -1363,13 +1360,13 @@ def first_phase(restrictions: list, symbs: list) -> tuple:
         if s >= 0:
             x = [i for j in range(len(symbs))]
             s = max([expr.subs(list(zip(symbs, x))) for expr in restrictions_sympy])
-        
+
     if s < 0:
         return x
     elif s > 0:
-        return 'Ð’Ð²ÐµÐ´ÐµÐ½Ð½Ñ‹Ðµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ð½Ðµ Ð¼Ð¾Ð³ÑƒÑ‚ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒÑÑ Ð²Ð¼ÐµÑÑ‚Ðµ'
+        return 'Введенные ограничения не могут использоваться вместе'
     elif s == 0:
-        return 'ÐÐµÐ²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð¿Ð¾Ð´Ð¾Ð±Ñ€Ð°Ñ‚ÑŒ Ð²Ð½ÑƒÑ‚Ñ€ÐµÐ½Ð½ÑŽÑŽ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð´Ð»Ñ Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð¼ÐµÑ‚Ð¾Ð´Ð°'
+        return 'Невозможно подобрать внутреннюю точку для данного метода'
 
 
 def eq_dual_newton(func: str, equality: list, x0: tuple, tol=5):
@@ -1400,7 +1397,7 @@ def eq_dual_newton(func: str, equality: list, x0: tuple, tol=5):
         func = sympify(func)
         equality = [sympify(eq.partition('=')[0]) for eq in equality]
     except SympifyError:
-        print('ÐÐµÐ²ÐµÑ€Ð½Ð¾ Ð·Ð°Ð´Ð°Ð½Ñ‹ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸')
+        print('Неверно заданы функции')
     func_c = lambda x: func.subs(dict(zip(func.free_symbols, x)))
     eq_func = lambda x: [us.subs(dict(zip(us.free_symbols, x))) for us in equality]
     eq_constraints = {'type': 'eq',
@@ -1581,9 +1578,9 @@ def terrifying(func, x0, us, a, b, tol=10**-5):
         F0 = Matrix([func])
         Fi = Matrix(*[us_n])
         Y = Matrix(var)
-        n = len(var)  # ÐºÐ¾Ð»Ð¸Ñ‡ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ…
-        m = len(us_n)  # Ð½ÐµÑ€Ð°Ð²ÐµÐ½ÑÑ‚Ð²Ð¾ 
-        p = len(us_eq)  # Ñ€Ð°Ð²ÐµÐ½ÑÑ‚Ð²Ð¾
+        n = len(var)  # колич переменных
+        m = len(us_n)  # неравенство 
+        p = len(us_eq)  # равенство
         lmbd = Matrix([f'lambda{i}' for i in range(m)])
         diag_lam = diag(*lmbd, unpack=True)
         mu = Matrix([f'mu{i}' for i in range(p)])
@@ -1606,33 +1603,33 @@ def terrifying(func, x0, us, a, b, tol=10**-5):
                                 n, m, p, Fi, func, tol, A)
         return point, y
     except:
-        str1 = 'ÐœÑ‹ ÑÐ´ÐµÐ»Ð°Ð»Ð¸ Ð²ÑÐµ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾Ðµ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ñ€ÐµÑˆÐ¸Ñ‚ÑŒ ÑÑ‚Ñƒ Ð·Ð°Ð´Ð°Ñ‡Ñƒ. '
-        str2 = 'Ðš ÑÐ¾Ð¶Ð°Ð»ÐµÐ½Ð¸ÑŽ, Ð½Ðµ Ð¿Ð¾Ð¼Ð¾Ð³Ð»Ð° Ð´Ð°Ð¶Ðµ Ð¼Ð¾Ð»Ð¸Ñ‚Ð²Ð°((('
+        str1 = 'Мы сделали все возможное, чтобы решить эту задачу. '
+        str2 = 'К сожалению, не помогла даже молитва((('
         print(str1+str2)
         raise
 
 
 def logistic_regression_with_l1(x_train: np.array, y_train: np.array, x_test: np.array,
         penalty=None, C=1, l1_ratio=None, draw=False, degree=1):
-    
-    # Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð²
-    assert C > 0, 'Ð¡Ð¸Ð»Ð° Ñ€ÐµÐ³ÑƒÐ»ÑÑ€Ð¸Ð·Ð°Ñ†Ð¸Ð¸ Ð´Ð¾Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ, Ñ‡ÐµÐ¼ 0!'
+
+    # проверка параметров
+    assert C > 0, 'Сила регуляризации дожна быть больше, чем 0!'
     if l1_ratio is not None:
-        assert 0 <= l1_ratio <= 1, 'ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ l1_ration Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð±Ñ‹Ñ‚ÑŒ ÑƒÐ´Ð¾Ð²Ð»ÐµÑ‚Ð²Ð¾Ñ€ÑÑ‚ÑŒ Ð½ÐµÑ€Ð°Ð²ÐµÐ½ÑÑ‚Ð²Ñƒ 0 <= l1_ratio <= 1!'
-    assert degree > 0 and isinstance(degree, int), 'ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ degree Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð±Ñ‹Ñ‚ÑŒ Ñ†ÐµÐ»Ñ‹Ð¼ Ð¿Ð¾Ð»Ð¾Ð¶Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¼ Ñ‡Ð¸ÑÐ»Ð¾Ð¼!'
-    assert len(np.unique(y_train)), 'Ð’ y_train Ð´Ð¾Ð»Ð¶Ð½Ð¾ Ð±Ñ‹Ñ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð¾Ð´Ð½Ð¾Ð³Ð¾ ÐºÐ»Ð°ÑÑÐ°!'
-    
+        assert 0 <= l1_ratio <= 1, 'Параметр l1_ration должен быть удовлетворять неравенству 0 <= l1_ratio <= 1!'
+    assert degree > 0 and isinstance(degree, int), 'Параметр degree должен быть целым положительным числом!'
+    assert len(np.unique(y_train)), 'В y_train должно быть больше одного класса!'
+
     if x_train.shape[0] < 2**x_train.shape[1]:
-        print('Ð”Ð»Ñ Ð¾Ð¿Ñ‚Ð¸Ð¼Ð°Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ð° ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð½Ð°Ð±Ð»ÑŽÐ´ÐµÐ½Ð¸Ð¹ Ð´Ð¾Ð»Ð¶Ð½Ð¾ Ð±Ñ‹Ñ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ 2^k.')
-        IsContinue = int(input('Ð’ÑÐµ Ñ€Ð°Ð²Ð½Ð¾ Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶Ð¸Ñ‚ÑŒ? (0/1): '))
+        print('Для оптимального результата количество наблюдений должно быть больше 2^k.')
+        IsContinue = int(input('Все равно продолжить? (0/1): '))
         if not IsContinue:
             return
-    
+
     poly = PolynomialFeatures(degree, include_bias=False)
-    
+
     x_poly = poly.fit_transform(x_train)
     x_poly_test = poly.transform(x_test)
-    
+
     if penalty == 'l1':
         penalty = 'elasticnet'
         l1_ratio = 1
@@ -1640,16 +1637,16 @@ def logistic_regression_with_l1(x_train: np.array, y_train: np.array, x_test: np
         penalty = 'elasticnet'
         if l1_ratio is None:
             l1_ratio = 0.8
-    
+
     model = LogisticRegression(max_iter=50_000, penalty=penalty, solver='saga', l1_ratio=l1_ratio, C=C)
     model.fit(x_poly, y_train)
     y_pred = model.predict(x_poly_test)
-    
+
     res = {'x_test': x_poly_test,
            'y_pred': y_pred,
            'intercept': model.intercept_,
            'coef': model.coef_}
-    
+
     if x_test.shape[1] == 2 and draw:
         # create scatter plot for samples from each class
         for class_value in range(2):
@@ -1659,40 +1656,40 @@ def logistic_regression_with_l1(x_train: np.array, y_train: np.array, x_test: np
             plt.scatter(x_poly_test[row_ix, 0], x_poly_test[row_ix, 1])
         # show the plot
         plt.show()
-    
+
     return res
 
- 
+
 def own_svm(x_train, y_train, x_test, 
         C=1, penalty=None, graph=False):
-    
-    assert C >0, "Ð¡Ð¸Ð»Ð° Ñ€ÐµÐ³ÑƒÐ»ÑÑ€Ð¸Ð·Ð°Ñ†Ð¸Ð¸ Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ 0!"
-    assert len(np.unique(y_train)) > 1, 'Ð’ y_train Ð´Ð¾Ð»Ð¶Ð½Ð¾ Ð±Ñ‹Ñ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð¾Ð´Ð½Ð¾Ð³Ð¾ ÐºÐ»Ð°ÑÑÐ°!'
-    
+
+    assert C >0, "Сила регуляризации должна быть больше 0!"
+    assert len(np.unique(y_train)) > 1, 'В y_train должно быть больше одного класса!'
+
     if x_train.shape[0] < 2**x_train.shape[1]:
-        print('Ð”Ð»Ñ Ð¾Ð¿Ñ‚Ð¸Ð¼Ð°Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ð° ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð½Ð°Ð±Ð»ÑŽÐ´ÐµÐ½Ð¸Ð¹ Ð´Ð¾Ð»Ð¶Ð½Ð¾ Ð±Ñ‹Ñ‚ÑŒ Ð±Ð¾Ð»ÑŒÑˆÐµ 2^k.')
-        IsContinue = int(input('Ð’ÑÐµ Ñ€Ð°Ð²Ð½Ð¾ Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶Ð¸Ñ‚ÑŒ? (0/1): '))
+        print('Для оптимального результата количество наблюдений должно быть больше 2^k.')
+        IsContinue = int(input('Все равно продолжить? (0/1): '))
         if not IsContinue:
             return
-        
+
     if penalty not in ['l1', 'l2']:
         penalty = 'l2'
-    
+
     model = LinearSVC(max_iter=50_000, penalty=penalty, C=C, dual=False)
     model.fit(x_train, y_train)
     y_pred = model.predict(x_test)
-    
+
     res = {'x_test': x_test,
            'y_pred': y_pred,
            'intercept': model.intercept_,
            'coef': model.coef_}
-    
+
     if x_test.shape[1] == 2 and graph:
         for class_value in range(2):
             row_ix = np.where(y_pred == class_value)
             plt.scatter(x_test[row_ix, 0], x_test[row_ix, 1])
         plt.show()
-    
+
     return res
 
 
@@ -1718,8 +1715,8 @@ def draw_2d(X_test, y_hat, logit, poly):
     for clss in np.unique(y_hat):
         plt.scatter(X_test[y_hat == clss, 0], X_test[y_hat == clss, 1], 
                     c=colors[clss], label=clss)
-    plt.xlabel("ÐŸÑ€Ð¸Ð·Ð½Ð°Ðº 1")
-    plt.ylabel("ÐŸÑ€Ð¸Ð·Ð½Ð°Ðº 2")
+    plt.xlabel("Признак 1")
+    plt.ylabel("Признак 2")
     plot_boundary(logit, X_test, y_hat, grid_step=.01, poly_featurizer=poly)
     plt.legend()
 
@@ -1772,9 +1769,9 @@ def own_logistic_regression(X_train, y_train, X_test,
     param = {'penalty': penalty, 
              'C': C, 
              'l1_ratio': l1_ratio}
-    str1 = 'ÐÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ 0 <= l1_ratio <= 1'
-    str2 = 'ÐÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ C > 0'
-    str3 = 'Ð’ÑÐµÐ³Ð¾ Ð¾Ð´Ð¸Ð½ ÐºÐ»Ð°ÑÑ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¾Ð±ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð¼Ð¾Ð´ÐµÐ»ÑŒ'
+    str1 = 'Не выполняется условие 0 <= l1_ratio <= 1'
+    str2 = 'Не выполняется условие C > 0'
+    str3 = 'Всего один класс, мы не можем обучить модель'
     assert l1_ratio=='none' or 0 <= l1_ratio <= 1, str1
     assert C > 0, str2
     assert len(np.unique(y_train)) > 1, str3
@@ -1782,8 +1779,8 @@ def own_logistic_regression(X_train, y_train, X_test,
     X_poly = poly.fit_transform(X_train)
     X_test_poly = poly.transform(X_test)
     if X_poly.shape[0] < 2**X_poly.shape[1]:
-        print('Ð”Ð°Ð½Ð½Ñ‹Ñ… Ð½ÐµÐ´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ð¾ Ð´Ð»Ñ Ð¾Ð±ÑƒÑ‡ÐµÐ½Ð¸Ñ ÐºÐ¾ÑÑ„Ñ„Ð¸Ñ†Ð¸ÐµÐ½Ñ‚Ð¾Ð². ÐŸÑ€Ð¾Ð´Ð¾Ð»Ð¶Ð¸Ñ‚ÑŒ?')
-        answ = input('0 â€“ ÐÐµÑ‚\n1 â€“ Ð”Ð°')
+        print('Данных недостаточно для обучения коэффициентов. Продолжить?')
+        answ = input('0 – Нет\n1 – Да')
         if answ == 0:
             return None
     if penalty == 'elasticnet' and l1_ratio == 'none':
@@ -1816,8 +1813,8 @@ def draw_rdf(X, y, clf):
     for clss in np.unique(y):
         plt.scatter(X[y == clss, 0], X[y == clss, 1], 
                     c=colors[clss], label=clss)
-    plt.xlabel("ÐŸÑ€Ð¸Ð·Ð½Ð°Ðº 1")
-    plt.ylabel("ÐŸÑ€Ð¸Ð·Ð½Ð°Ðº 2")
+    plt.xlabel("Признак 1")
+    plt.ylabel("Признак 2")
     h = .02
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
@@ -1874,9 +1871,9 @@ def logistic_regression_with_rbf(X_train, y_train, X_test,
     'coef': array([[-0.32377093, -0.89114665, -0.2455269 , -1., -0.84723235,
                     0.52369094,  1.,  0.51354647,  1.,  0.27043942]])}
     """
-    str1 = 'ÐÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ gamma > 0'
-    str2 = 'ÐÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ C > 0'
-    str3 = 'Ð’ÑÐµÐ³Ð¾ Ð¾Ð´Ð¸Ð½ ÐºÐ»Ð°ÑÑ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¾Ð±ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð¼Ð¾Ð´ÐµÐ»ÑŒ'
+    str1 = 'Не выполняется условие gamma > 0'
+    str2 = 'Не выполняется условие C > 0'
+    str3 = 'Всего один класс, мы не можем обучить модель'
     assert gamma == 'scale' or gamma > 0, str1
     assert C > 0, str2
     assert len(np.unique(y_train)) > 1, str3
@@ -1941,9 +1938,9 @@ def svm_with_pddipm(X_train, y_train, X_test,
     param = {'penalty': 'l2', 
              'C': C, 
              'max_iter': max_iter}
-    str1 = 'penalty Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ l2'
-    str2 = 'ÐÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ C > 0'
-    str3 = 'Ð’ÑÐµÐ³Ð¾ Ð¾Ð´Ð¸Ð½ ÐºÐ»Ð°ÑÑ, Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ð¾Ð±ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð¼Ð¾Ð´ÐµÐ»ÑŒ'
+    str1 = 'penalty может быть только l2'
+    str2 = 'Не выполняется условие C > 0'
+    str3 = 'Всего один класс, мы не можем обучить модель'
     assert penalty in ['none', 'l2'], str1
     assert C > 0, str2
     assert len(np.unique(y_train)) > 1, str3
@@ -1968,15 +1965,15 @@ def branche_boundaries(F: str, constraint: list):
         tuple: (point, result of function);
         example: (array([1., 5.]), 4.00000000000000)
     '''
-    
+
     exp = sympify(F)
-    
-    count_constraint = int(input('Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ð¹: '))
-    
+
+    count_constraint = int(input('Введите количество ограничений: '))
+
     symbs = sorted(list(exp.free_symbols), key=lambda x: str(x))
-    
+
     c = [float(exp.coeff(symb)) for symb in symbs]
-    
+
     dic_constr = {i: [] for i in range(1, count_constraint+1)}
     for i in range(len(constraint)):
         ineq = sympify(constraint[i])
@@ -1984,35 +1981,35 @@ def branche_boundaries(F: str, constraint: list):
         dic_constr[i+1] = [float(ex.coeff(symb)) for symb in symbs]
 
     A = [v for v in dic_constr.values()]
-    
+
     for i in range(len(symbs)):
         lst = [0.0]*len(symbs)
         lst[i] = -1.0
         A.append(lst)
-    
+
     b = []
     for ineq in constraint:
         ine = sympify(ineq)
         b.append(ine.args[1])
-    
+
     b += [0]*len(symbs)
-    
+
     res = linprog(c, A_ub=A, b_ub=b, method='simplex')['x']
-    
+
     if all(str(i).split('.')[-1] == '0' for i in res) \
             and all([sympify(const).subs(list(zip(symbs, res))) for const in constraint]):
         return res
-    
+
     try:
         res_zlp1 = ZLP1(F, constraint, res, symbs, A, b, c)
     except:
         res_zlp1 = None
-        
+
     try:
         res_zlp2 = ZLP2(F, constraint, res, symbs, A, b, c)
     except:
         res_zlp2 = None
-    
+
     if res_zlp1 is not None and res_zlp2 is not None:
         if exp.subs(list(zip(symbs, res_zlp1))) <= exp.subs(list(zip(symbs, res_zlp2))):
             return res_zlp1, exp.subs(list(zip(symbs, res_zlp1)))
@@ -2031,24 +2028,24 @@ def ZLP1(func, constraint, res_last, symbs, A, b, c):
     whole = int(res_last[i])
     lst = [0]*len(symbs)
     lst[i] = 1
-    
-    
+
+
     A_new = deepcopy(A)
     b_new = deepcopy(b)
     A_new.append(lst)
     b_new.append(whole)
 
     res = linprog(c, A_ub=A_new, b_ub=b_new, method='simplex')['x']
-    
-    
+
+
     if all(str(i).split('.')[-1] == '0' for i in res) \
             and all([sympify(const).subs(list(zip(symbs, res))) for const in constraint]):
         return res
-    
+
     res_zlp3 = ZLP1(func, constraint, res, symbs, A_new, b_new, c)
     res_zlp4 = ZLP2(func, constraint, res, symbs, A_new, b_new, c)
-    
-    
+
+
     to_return = []
     if all(str(i).split('.')[-1] == '0' for i in res_zlp3) \
             and all([sympify(const).subs(list(zip(symbs, res_zlp3))) for const in constraint]):
@@ -2056,7 +2053,7 @@ def ZLP1(func, constraint, res_last, symbs, A, b, c):
     if all(str(i).split('.')[-1] == '0' for i in res_zlp4) \
             and all([sympify(const).subs(list(zip(symbs, res_zlp4))) for const in constraint]):
         to_return.append(res_zlp4)
-        
+
     if to_return:
         return to_return
     else:
@@ -2068,21 +2065,21 @@ def ZLP2(func, constraint, res_last, symbs, A, b, c):
     whole = -int(res_last[i])-1 
     lst = [0]*len(symbs)
     lst[i] = 1
-    
+
     A_new = deepcopy(A)
     b_new = deepcopy(b)
     A_new.append(lst)
     b_new.append(whole)
 
     res = linprog(c, A_ub=A_new, b_ub=b_new, method='simplex')['x']
-    
+
     if all(str(i).split('.')[-1] == '0' for i in res) \
             and all([sympify(const).subs(list(zip(symbs, res))) for const in constraint]):
         return res
-    
+
     res_zlp5 = ZLP1(func, constraint, res, symbs, A_new, b_new, c)
     res_zlp6 = ZLP2(func, constraint, res, symbs, A_new, b_new, c)
-    
+
     to_return = []
     if all(str(i).split('.')[-1] == '0' for i in res_zlp5) \
             and all([sympify(const).subs(list(zip(symbs, res_zlp5))) for const in constraint]):
@@ -2090,18 +2087,18 @@ def ZLP2(func, constraint, res_last, symbs, A, b, c):
     if all(str(i).split('.')[-1] == '0' for i in res_zlp5) \
             and all([sympify(const).subs(list(zip(symbs, res_zlp5))) for const in constraint]):
         to_return.append(res_zlp6)
-        
+
     if to_return:
         return to_return
     else:
         return None
 
 
-def T(i): # Ð¾Ñ…Ð»Ð°Ð¶Ð´ÐµÐ½Ð¸Ðµ
+def T(i): # охлаждение
     return 1 / i
 
 
-def P(E_new, E_old, T): # ÐºÑ€Ð¸Ñ‚ÐµÑ€Ð¸Ð¹ Ð¼ÐµÐ³Ð°Ð¿Ð¾Ð»Ð¸ÑÐ°
+def P(E_new, E_old, T): # критерий мегаполиса
     return np.exp(-1 * (float(E_new) - float(E_old)) / T)
 
 
@@ -2128,13 +2125,13 @@ def gradE(F, symbs, point):
 
 
 def simulated_annealing(F: str, constraints: list, start_points: list, steps=1000):
-    
+
     exp = sympify(F)
     symbs = sorted(list(exp.free_symbols), key=lambda x: str(x))
-    
+
     check_constraints = const(symbs, constraints, start_points)
     if not check_constraints:
-        return 'Ð¢Ð¾Ñ‡ÐºÐ° Ð½Ðµ ÑƒÐ´Ð¾Ð²Ð»ÐµÑ‚Ð²Ð¾Ñ€ÑÐµÑ‚ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸ÑÐ¼'
+        return 'Точка не удовлетворяет ограничениям'
 
     x_old = np.array(start_points)
     for i in range(1, steps+1):
@@ -2147,7 +2144,7 @@ def simulated_annealing(F: str, constraints: list, start_points: list, steps=100
         else:
             if P(E_new, E_old, t) >= 0.9:
                 x_old = x_new
-    
+
     return x_new
 
 
@@ -2270,99 +2267,5 @@ def genetic_algorithm(func, restr, strength_of_mutation=1, number_of_generations
 
     evaluated = evaluate(population, func, symbs)
     return evaluated[0]
-
-def own_pegasos(X_train, y_train, X_test, lam = 0.001, max_iter = 1000, stoch_size = 0.2, draw = False):
-    """
-    A function that implements a two-class classification model using
-    the pegasos method for the reference vector
-    method training problem.
-    Parameters
-    ----------
-    X_train : numpy.array
-        A set of features for the training sample.
-    y_train : numpy.array
-        Set of class values for the training sample (classes can be only -1 or 1).
-    X_test : numpy.array
-        A set of features for the test sample.
-    lam: float, default= 0.001
-        the power of regularization
-    max_iter : int, default=1000
-        Number of learning iterations
-    stoch_size: float, default = 0.2
-        the proportion of the training sample for stochastic gradient descent
-    draw : bool, default=False
-        Plotting the classification graph.
-
-    Examples
-    >>> from sklearn.datasets import make_blobs
-    >>> X, Y = make_blobs(n_samples = 40,centers=2, cluster_std=1.2,n_features=2,random_state=42)
-    >>> for i,j in enumerate(Y):
-    >>>     if j == 0:
-    >>>         Y[i] = -1
-    >>>     elif j == 1:
-    >>>         Y[i] = 1
-    >>> X_train = X[:35]
-    >>> Y_train = Y[:35]
-    >>> X_test= X[35:]
-    >>> Y_test = Y[35:]
-    >>> own_pegasos(X_train, Y_train, X_test)
-    >>> {'weights': array([ 0.38290961, -0.09323558,  0.05267501]),
-    >>> 'y_pred': array([ 1, -1,  1, -1,  1])}
-    """
-    if len(y_train.shape) != 1 or (np.unique(y_train) == np.array([-1, 1])).sum() != 2:
-        raise ValueError('ìàññèâ êëàññîâ äîëæåí áûòü îäíîìåðíûì è ñîäåðæàòü òîëüêî äâà êëàññà: -1 èëè 1')
-    if X_train.shape[1] != X_test.shape[1]:
-        raise ValueError('êîë-âî ïðèçíàêîâ â îáó÷àþùåé è òåñòîâîé âûáîðêå äîëæíî áûòü îäèíàêîâûì')
-    k= stoch_size * X_train.shape[0]
-    inds =np.arange(X_train.shape[0])
-    #äîáàâëåíèå ñòîëáöîâ èç åäèíèö
-    X_train = np.concatenate((X_train, np.ones((X_train.shape[0],1))), axis=1)
-    X_test = np.concatenate((X_test, np.ones((X_test.shape[0],1))), axis=1)
-    w = np.zeros(X_train.shape[1])
-    margin_current = 0
-    margin_previous = -10
-    not_converged = True
-    t = 0
-
-    while(not_converged):
-        margin_previous = margin_current
-        t += 1
-        pos_support_vectors = 0
-        neg_support_vectors = 0
-        eta = 1/(lam*t)
-        fac = (1-(eta*lam))*w
-        np.random.shuffle(inds)
-        selected_inds = inds[:round(k)]
-        for i in selected_inds:
-            prediction = np.dot(X_train[i], w)
-
-            if (round((prediction),1) == 1):
-                pos_support_vectors += 1
-            if (round((prediction),1) == -1):
-                neg_support_vectors += 1
-
-            if y_train[i]*prediction < 1:
-                w = fac + eta*y_train[i]*X_train[i]
-            else:
-                w = fac
-
-        if t>max_iter:    
-            margin_current = np.linalg.norm(w)
-            if((pos_support_vectors > 0)and(neg_support_vectors > 0)and((margin_current - margin_previous) < 0.01)):
-                not_converged = False
-
-    y_pred = []
-    for i in X_test:
-        pred = np.dot(w,i)
-        if (pred > 0):
-            y_pred.append(1)
-        elif (pred < 0):
-            y_pred.append(-1)
-
-    if X_test.shape[1] == 3 and draw:
-        plt.scatter(X_test[:, 0], X_test[:, 1], c= y_pred, s=20, cmap='viridis')
-        plt.xlabel('Ïðèçíàê 1')
-        plt.ylabel('Ïðèçíàê 2')
-    elif draw:
-        raise ValueError('íå ìîæåì ïîñòðîèòü ãðàôèê')
-    return {'y_pred': np.array(y_pred), 'weights': w}
+  
+  
