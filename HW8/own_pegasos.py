@@ -93,6 +93,6 @@ def own_pegasos(X_train, y_train, X_test, lam = 0.001, max_iter = 1000, stoch_si
         plt.scatter(X_test[:, 0], X_test[:, 1], c= y_pred, s=20, cmap='viridis')
         plt.xlabel('Признак 1')
         plt.ylabel('Признак 2')
-    else:
+    elif draw:
         raise ValueError('не можем построить график')
     return {'y_pred': np.array(y_pred), 'weights': w}
